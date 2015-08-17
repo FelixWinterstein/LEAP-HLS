@@ -1,0 +1,4 @@
+*~
+*.v
+obj
+MyIP.bsv
