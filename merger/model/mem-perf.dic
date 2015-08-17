@@ -1,0 +1,20 @@
+// Scratchpads
+def VDEV.SCRATCH.COH_MEMPERF_DATA     "coh_scratch_memperf_data";
+def VDEV.SCRATCH.COH_MEMPERF_BITS     "coh_scratch_memperf_bits";
+
+// Coherence domain
+def VDEV.COH.SCRATCH.MEMTEST          "memtest_coherence_domain";
+
+// Lock groups
+def VDEV.LOCKGROUP.0                  "memtest_lock_group_0";
+
+def VDEV.SCRATCH.MEMTEST0     "scratch_memtest0";
+def VDEV.SCRATCH.MEMTEST1     "scratch_memtest1";
+def VDEV.SCRATCH.MEMTEST2     "scratch_memtest2";
+def VDEV.SCRATCH.MEMTEST3     "scratch_memtest3";
+def VDEV.SCRATCH.MEMTEST4     "scratch_memtest4";
+def VDEV.SCRATCH.MEMTEST5     "scratch_memtest5";
+def VDEV.SCRATCH.MEMTEST6     "scratch_memtest6";
+def VDEV.SCRATCH.MEMTEST7     "scratch_memtest7";
+def VDEV.SCRATCH.INIT         "scratch_init";
+

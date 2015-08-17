@@ -1,0 +1,12 @@
+service MEMPERFRRR
+{
+   server hw (bsv, connection) <- sw (cpp, method)
+   {
+      method RunTest(in UINT32[32] workingSet,
+                     in UINT32[32] iterations,
+                     // 2 bits: 0 (write), 1 (read), 2 (done)
+                     in UINT8[8] command,
+                     out UINT32[32] errors,
+                     out UINT32[32] cycles);
+   };
+}

@@ -1,0 +1,15 @@
+%name Scratchpad Perf Test Connected Application
+%desc Scratchpad Perf Test Connected Application
+
+%attributes slave connected hybrid
+
+%provides connected_application
+
+%requires mem_perf_wrapper
+
+%public  connected-application-test.bsv
+%public  connected-application-test.h
+%public  connected-application-test.cpp
+
+%param SYNTH_BOUNDARY mkConnectedApplication "name of synthesis boundary"
+
