@@ -1,2 +1,0 @@
-This folder contains the LEAP model files.
-The ./build_model.sh script automatically copies all wrapper files from ../wrappers/. and verilog files from ../generated_verilog/. into this folder before building the model.
