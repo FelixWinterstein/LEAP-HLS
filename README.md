@@ -1,7 +1,8 @@
 LEAP-HLS
 ===========
 
-Integrate HLS designs into the LEAP framework.
+Integrate HLS designs into the LEAP framework
+-----------
 
 This repository contains code in support of the tutorial "The LEAP Run-time System – Rapid System Integration of Your HLS Kernels", held at the International Conference on Field-programmable Logic and Applications 2015 (http://www.fpl2015.org/?page=tutorials#t4).
 
