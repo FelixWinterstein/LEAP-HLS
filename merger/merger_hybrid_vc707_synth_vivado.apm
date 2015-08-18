@@ -1,0 +1,74 @@
+
+[Global]
+SaveParameters=0
+Description=Hybrid Virtual Memory Test Model with Private Caches for VC707
+File=merger_hybrid_vc707
+Version=2.2
+Name=Hybrid Virtual Memory Test Model with Private Caches for VC707
+Type=Leap
+Class=Asim::Model
+DefaultBenchmark=null
+DefaultRunOpts=
+RootName=HW/SW Hybrid Pipeline Build
+RootProvides=model
+
+[Model]
+DefaultAttributes=bram-test hasim hybrid
+model=HW/SW Hybrid Pipeline Build
+
+[Default Hybrid Project Common Utilities]
+File=config/pm/leap/submodels/common/project-common-default.apm
+Packagehint=leap
+
+[Soft Services Hybrid Application Environment]
+File=modules/leap/build-support/project/application-env/soft-services/application-env-hybrid-soft-service.awb
+Packagehint=leap
+
+[HW/SW Hybrid Pipeline Build/Requires]
+project_common=Default Hybrid Project Common Utilities
+fpgaenv=Hybrid VC707 PCIE FPGA Environment (Vivado)
+application_env=Soft Services Hybrid Application Environment
+
+[Soft Services Hybrid Application Environment/Requires]
+connected_application=Scratchpad Perf Test Connected Application
+
+[HW/SW Hybrid Pipeline Build]
+File=modules/leap/build-support/project/project-pipeline.awb
+Packagehint=leap
+
+[Scratchpad Memory Performance Test System]
+File=./model/mem-perf.awb
+
+[Scratchpad Memory Performance Test System/Params]
+MEM_TEST_PRIVATE_CACHES=1
+CACHE_ENTRIES=4096
+
+[Scratchpad Memory Performance Test System Wrapper/Requires]
+mem_perf_tester=Scratchpad Memory Performance Test System
+mem_perf_common=Mem perf common types
+
+[Scratchpad Memory Performance Test System Wrapper]
+File=./model/mem-perf-wrapper.awb
+
+[Scratchpad Perf Test Connected Application]
+File=./model/connected_application/connected-application-test.awb
+
+[Scratchpad Perf Test Connected Application/Requires]
+mem_perf_wrapper=Scratchpad Memory Performance Test System Wrapper
+
+[Mem perf common types]
+File=./model/mem-perf-common.awb
+
+
+[Hybrid VC707 PCIE FPGA Environment (Vivado)]
+File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-vc707-pcie-vivado.apm
+Packagehint=leap
+
+[Hybrid VC707 PCIE FPGA Environment (Vivado)/Params]
+MODEL_CLOCK_FREQ=100
+RL_DM_CACHE_BRAM_TYPE=1
+RL_SA_BRAM_CACHE_BRAM_TYPE=1
+CENTRAL_CACHE_BRAM_CACHE_ENABLE=0
+CENTRAL_CACHE_BRAM_CACHE_SET_IDX_BITS=12
+CENTRAL_CACHE_BRAM_CACHE_WAYS=2
+
