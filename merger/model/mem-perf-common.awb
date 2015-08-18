@@ -11,13 +11,17 @@
 
 %public MyIP.bsv
 %public bus_bridge.v
+%public delete_smallest.v
 %public fifo.v
 %public merger_top.v
 %public merger_top_wrapper.v
 %public sorted_insert.v
+%public sorted_insert_wrapper_0.v
+%public sorted_insert_wrapper_1.v
+%public sorted_insert_wrapper_2.v
+%public sorted_insert_wrapper_3.v
 %public freelist_initialization.dat
 %public freelist_initialization.hex
-
 
 
 %param MEM_TEST_ALT 1  "Should we test the second scratchpad"
