@@ -1,5 +1,5 @@
 
-#include "merger_top.h"
+#include "../design_files/merger_top.h"
 #include <stdio.h>
 #include <stdlib.h>
 
