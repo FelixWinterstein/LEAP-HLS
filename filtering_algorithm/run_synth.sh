@@ -17,5 +17,6 @@ echo "********************************************";
 MODEL_NAME=`echo $1 | sed -e "s/.apm//g"`;
 
 cp generated_verilog/*.dat $WORKDIR/$MODEL_NAME/bm/null/.
+cp generated_verilog/*.hex $WORKDIR/$MODEL_NAME/bm/null/.
 
 awb-shell -- run benchmark config/bm/leap/demos.cfx/benchmarks/null.cfg --model $1
