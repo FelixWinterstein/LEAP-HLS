@@ -1,7 +1,7 @@
 The Filtering Algorithm
 =============
 
-This program is an implementation of the Filtering Algorithm [1]. The implementation performs a recursive tree traversal which incorporates complex data-dependent control flow and makes use of pointer-linked data structures and dynamic memory allocation. Details are given in [2]. The Vivado HLS design is intergrated into the LEAP framework, connecting up to 16 memory ports of the HLS core to LEAP private scratchpads, and up to 4 memory ports to LEAP coherent scratchpads accessing shared memory.
+This program is an implementation of the Filtering Algorithm [1] for tree-based K-means clustering. The implementation performs a recursive tree traversal which incorporates complex data-dependent control flow and makes use of pointer-linked data structures and dynamic memory allocation. Details are given in [2]. The Vivado HLS design is intergrated into the LEAP framework, connecting up to 16 memory ports of the HLS core to LEAP private scratchpads, and up to 4 memory ports to LEAP coherent scratchpads accessing shared memory.
 
 Steps to build it:
 -------------
