@@ -25,4 +25,5 @@ cd $PWDVAR ;
 cp generated_verilog/*.dat $WORKDIR/$MODEL_NAME/bm/null/$MODEL_NAME/.
 cp generated_verilog/*.dat $WORKDIR/$MODEL_NAME/bm/null/.
 cp generated_verilog/*.hex $WORKDIR/$MODEL_NAME/bm/null/$MODEL_NAME/.
+cp generated_verilog/*.hex $WORKDIR/$MODEL_NAME/bm/null/.
 awb-shell -- run benchmark config/bm/leap/demos.cfx/benchmarks/null.cfg --model $1

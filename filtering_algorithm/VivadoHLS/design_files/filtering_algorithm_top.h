@@ -33,8 +33,6 @@
 
 #define FORCE_PROTOCOL_REGION	// enforce a strict I/O protocol for some code regions (this flag should be left enabled)
 
-#define CENTRESET_HEAP_SIZE 1024 	// max number of centre lists that can be allocated in the scratchpad heap
-
 // shared memory bus width
 #define DDR_BUS_WIDTH3 64
 typedef ap_uint<DDR_BUS_WIDTH3> bus_type3;

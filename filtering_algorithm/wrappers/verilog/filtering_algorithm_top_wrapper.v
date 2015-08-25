@@ -66,6 +66,15 @@ module filtering_algorithm_top_wrapper (
     output access_critical_region0_ap_vld,
     `endif
 
+    output writeReq0_4,
+    output [31:0] writeReq_data0_4,
+    output [31:0] writeReq_addr0_4,
+    input writeAck0_4,
+    output readReq0_4,
+    output [31:0] readReq_addr0_4,
+    input readAck0_4,
+    input [31:0] readReq_data0_4,
+
     `ifndef REDUCE_PAR_TO_1
     output writeReq1_0,
     output [511:0] writeReq_data1_0,
@@ -106,6 +115,15 @@ module filtering_algorithm_top_wrapper (
     output access_critical_region1,
     output access_critical_region1_ap_vld,
     `endif
+
+    output writeReq1_4,
+    output [31:0] writeReq_data1_4,
+    output [31:0] writeReq_addr1_4,
+    input writeAck1_4,
+    output readReq1_4,
+    output [31:0] readReq_addr1_4,
+    input readAck1_4,
+    input [31:0] readReq_data1_4,
 
     `ifndef REDUCE_PAR_TO_2
     output writeReq2_0,
@@ -148,6 +166,15 @@ module filtering_algorithm_top_wrapper (
     output access_critical_region2_ap_vld,
     `endif
 
+    output writeReq2_4,
+    output [31:0] writeReq_data2_4,
+    output [31:0] writeReq_addr2_4,
+    input writeAck2_4,
+    output readReq2_4,
+    output [31:0] readReq_addr2_4,
+    input readAck2_4,
+    input [31:0] readReq_data2_4,
+
     output writeReq3_0,
     output [511:0] writeReq_data3_0,
     output [31:0] writeReq_addr3_0,
@@ -187,6 +214,16 @@ module filtering_algorithm_top_wrapper (
     output access_critical_region3,
     output access_critical_region3_ap_vld,
     `endif
+
+    output writeReq3_4,
+    output [31:0] writeReq_data3_4,
+    output [31:0] writeReq_addr3_4,
+    input writeAck3_4,
+    output readReq3_4,
+    output [31:0] readReq_addr3_4,
+    input readAck3_4,
+    input [31:0] readReq_data3_4,
+
     `endif
     `endif
 
@@ -376,6 +413,46 @@ module filtering_algorithm_top_wrapper (
     wire   int_access_critical_region3;
     wire   int_access_critical_region3_ap_vld;
 
+    wire   freelist_bus_0_1_V_req_din;
+    wire   freelist_bus_0_1_V_req_full_n;
+    wire   freelist_bus_0_1_V_req_write;
+    wire   freelist_bus_0_1_V_rsp_empty_n;
+    wire   freelist_bus_0_1_V_rsp_read;
+    wire  [31:0] freelist_bus_0_1_V_address;
+    wire  [31:0] freelist_bus_0_1_V_datain;
+    wire  [31:0] freelist_bus_0_1_V_dataout;
+    wire  [31:0] freelist_bus_0_1_V_size;
+
+    wire   freelist_bus_1_1_V_req_din;
+    wire   freelist_bus_1_1_V_req_full_n;
+    wire   freelist_bus_1_1_V_req_write;
+    wire   freelist_bus_1_1_V_rsp_empty_n;
+    wire   freelist_bus_1_1_V_rsp_read;
+    wire  [31:0] freelist_bus_1_1_V_address;
+    wire  [31:0] freelist_bus_1_1_V_datain;
+    wire  [31:0] freelist_bus_1_1_V_dataout;
+    wire  [31:0] freelist_bus_1_1_V_size;
+
+    wire   freelist_bus_2_1_V_req_din;
+    wire   freelist_bus_2_1_V_req_full_n;
+    wire   freelist_bus_2_1_V_req_write;
+    wire   freelist_bus_2_1_V_rsp_empty_n;
+    wire   freelist_bus_2_1_V_rsp_read;
+    wire  [31:0] freelist_bus_2_1_V_address;
+    wire  [31:0] freelist_bus_2_1_V_datain;
+    wire  [31:0] freelist_bus_2_1_V_dataout;
+    wire  [31:0] freelist_bus_2_1_V_size;
+
+    wire   freelist_bus_3_1_V_req_din;
+    wire   freelist_bus_3_1_V_req_full_n;
+    wire   freelist_bus_3_1_V_req_write;
+    wire   freelist_bus_3_1_V_rsp_empty_n;
+    wire   freelist_bus_3_1_V_rsp_read;
+    wire  [31:0] freelist_bus_3_1_V_address;
+    wire  [31:0] freelist_bus_3_1_V_datain;
+    wire  [31:0] freelist_bus_3_1_V_dataout;
+    wire  [31:0] freelist_bus_3_1_V_size;
+
 
     filtering_algorithm_top filtering_algorithm_top_U (
         .ap_clk (ap_clk),
@@ -549,6 +626,42 @@ module filtering_algorithm_top_wrapper (
         .access_critical_region3_ap_vld (access_critical_region3_ap_vld),
         `endif
         `endif
+        .freelist_bus_0_1_V_req_din (freelist_bus_0_1_V_req_din),
+        .freelist_bus_0_1_V_req_full_n (freelist_bus_0_1_V_req_full_n),
+        .freelist_bus_0_1_V_req_write (freelist_bus_0_1_V_req_write),
+        .freelist_bus_0_1_V_rsp_empty_n (freelist_bus_0_1_V_rsp_empty_n),
+        .freelist_bus_0_1_V_rsp_read (freelist_bus_0_1_V_rsp_read),
+        .freelist_bus_0_1_V_address (freelist_bus_0_1_V_address),
+        .freelist_bus_0_1_V_datain (freelist_bus_0_1_V_datain),
+        .freelist_bus_0_1_V_dataout (freelist_bus_0_1_V_dataout),
+        .freelist_bus_0_1_V_size (freelist_bus_0_1_V_size),
+        .freelist_bus_1_1_V_req_din (freelist_bus_1_1_V_req_din),
+        .freelist_bus_1_1_V_req_full_n (freelist_bus_1_1_V_req_full_n),
+        .freelist_bus_1_1_V_req_write (freelist_bus_1_1_V_req_write),
+        .freelist_bus_1_1_V_rsp_empty_n (freelist_bus_1_1_V_rsp_empty_n),
+        .freelist_bus_1_1_V_rsp_read (freelist_bus_1_1_V_rsp_read),
+        .freelist_bus_1_1_V_address (freelist_bus_1_1_V_address),
+        .freelist_bus_1_1_V_datain (freelist_bus_1_1_V_datain),
+        .freelist_bus_1_1_V_dataout (freelist_bus_1_1_V_dataout),
+        .freelist_bus_1_1_V_size (freelist_bus_1_1_V_size),
+        .freelist_bus_2_1_V_req_din (freelist_bus_2_1_V_req_din),
+        .freelist_bus_2_1_V_req_full_n (freelist_bus_2_1_V_req_full_n),
+        .freelist_bus_2_1_V_req_write (freelist_bus_2_1_V_req_write),
+        .freelist_bus_2_1_V_rsp_empty_n (freelist_bus_2_1_V_rsp_empty_n),
+        .freelist_bus_2_1_V_rsp_read (freelist_bus_2_1_V_rsp_read),
+        .freelist_bus_2_1_V_address (freelist_bus_2_1_V_address),
+        .freelist_bus_2_1_V_datain (freelist_bus_2_1_V_datain),
+        .freelist_bus_2_1_V_dataout (freelist_bus_2_1_V_dataout),
+        .freelist_bus_2_1_V_size (freelist_bus_2_1_V_size),
+        .freelist_bus_3_1_V_req_din (freelist_bus_3_1_V_req_din),
+        .freelist_bus_3_1_V_req_full_n (freelist_bus_3_1_V_req_full_n),
+        .freelist_bus_3_1_V_req_write (freelist_bus_3_1_V_req_write),
+        .freelist_bus_3_1_V_rsp_empty_n (freelist_bus_3_1_V_rsp_empty_n),
+        .freelist_bus_3_1_V_rsp_read (freelist_bus_3_1_V_rsp_read),
+        .freelist_bus_3_1_V_address (freelist_bus_3_1_V_address),
+        .freelist_bus_3_1_V_datain (freelist_bus_3_1_V_datain),
+        .freelist_bus_3_1_V_dataout (freelist_bus_3_1_V_dataout),
+        .freelist_bus_3_1_V_size (freelist_bus_3_1_V_size),
         .cntr_pos_init_value_V_dout (cntr_pos_init_value_V_dout),
         .cntr_pos_init_value_V_empty_n (cntr_pos_init_value_V_empty_n),
         .cntr_pos_init_value_V_read (cntr_pos_init_value_V_read),
@@ -650,6 +763,36 @@ module filtering_algorithm_top_wrapper (
         .readAck (readAck0_2),
         .readReq_data (readReq_data0_2)
     );
+
+
+    bus_bridge #(
+         .DATA_WIDTH ( 32 ),
+         .ADDR_WIDTH ( 32 )
+    ) 
+    bus_bridge_U0_4 (
+        .clk (ap_clk),
+        .rst_n (ap_rst_n),
+        // interface to the HLS core    
+        .rsp_empty_n (freelist_bus_0_1_V_rsp_empty_n),    
+        .rsp_full_n (freelist_bus_0_1_V_req_full_n),
+        .req_write (freelist_bus_0_1_V_req_write),
+        .req_din (freelist_bus_0_1_V_req_din),
+        .rsp_read (freelist_bus_0_1_V_rsp_read),
+        .address (freelist_bus_0_1_V_address),
+        .size (freelist_bus_0_1_V_size),
+        .dataout (freelist_bus_0_1_V_dataout),
+        .datain (freelist_bus_0_1_V_datain),
+        // req/resp/write interface to leap    
+        .writeReq (writeReq0_4),
+        .writeReq_data (writeReq_data0_4),
+        .writeReq_addr (writeReq_addr0_4),
+        .writeAck (writeAck0_4),
+        .readReq (readReq0_4),
+        .readReq_addr (readReq_addr0_4),
+        .readAck (readAck0_4),
+        .readReq_data (readReq_data0_4)
+    );
+
 
    `ifndef CENTRE_BUFFER_ONCHIP
     bus_bridge #(
@@ -767,6 +910,35 @@ module filtering_algorithm_top_wrapper (
         .readReq_addr (readReq_addr1_2),
         .readAck (readAck1_2),
         .readReq_data (readReq_data1_2)
+    );
+
+
+    bus_bridge #(
+         .DATA_WIDTH ( 32 ),
+         .ADDR_WIDTH ( 32 )
+    ) 
+    bus_bridge_U1_4 (
+        .clk (ap_clk),
+        .rst_n (ap_rst_n),
+        // interface to the HLS core    
+        .rsp_empty_n (freelist_bus_1_1_V_rsp_empty_n),    
+        .rsp_full_n (freelist_bus_1_1_V_req_full_n),
+        .req_write (freelist_bus_1_1_V_req_write),
+        .req_din (freelist_bus_1_1_V_req_din),
+        .rsp_read (freelist_bus_1_1_V_rsp_read),
+        .address (freelist_bus_1_1_V_address),
+        .size (freelist_bus_1_1_V_size),
+        .dataout (freelist_bus_1_1_V_dataout),
+        .datain (freelist_bus_1_1_V_datain),
+        // req/resp/write interface to leap    
+        .writeReq (writeReq1_4),
+        .writeReq_data (writeReq_data1_4),
+        .writeReq_addr (writeReq_addr1_4),
+        .writeAck (writeAck1_4),
+        .readReq (readReq1_4),
+        .readReq_addr (readReq_addr1_4),
+        .readAck (readAck1_4),
+        .readReq_data (readReq_data1_4)
     );
     
    `ifndef CENTRE_BUFFER_ONCHIP
@@ -887,6 +1059,34 @@ module filtering_algorithm_top_wrapper (
         .readReq_data (readReq_data2_2)
     );
 
+    bus_bridge #(
+         .DATA_WIDTH ( 32 ),
+         .ADDR_WIDTH ( 32 )
+    ) 
+    bus_bridge_U2_4 (
+        .clk (ap_clk),
+        .rst_n (ap_rst_n),
+        // interface to the HLS core    
+        .rsp_empty_n (freelist_bus_2_1_V_rsp_empty_n),    
+        .rsp_full_n (freelist_bus_2_1_V_req_full_n),
+        .req_write (freelist_bus_2_1_V_req_write),
+        .req_din (freelist_bus_2_1_V_req_din),
+        .rsp_read (freelist_bus_2_1_V_rsp_read),
+        .address (freelist_bus_2_1_V_address),
+        .size (freelist_bus_2_1_V_size),
+        .dataout (freelist_bus_2_1_V_dataout),
+        .datain (freelist_bus_2_1_V_datain),
+        // req/resp/write interface to leap    
+        .writeReq (writeReq2_4),
+        .writeReq_data (writeReq_data2_4),
+        .writeReq_addr (writeReq_addr2_4),
+        .writeAck (writeAck2_4),
+        .readReq (readReq2_4),
+        .readReq_addr (readReq_addr2_4),
+        .readAck (readAck2_4),
+        .readReq_data (readReq_data2_4)
+    );
+
    `ifndef CENTRE_BUFFER_ONCHIP
     bus_bridge #(
          .DATA_WIDTH ( 64 ),
@@ -1001,6 +1201,34 @@ module filtering_algorithm_top_wrapper (
         .readReq_addr (readReq_addr3_2),
         .readAck (readAck3_2),
         .readReq_data (readReq_data3_2)
+    );
+
+    bus_bridge #(
+         .DATA_WIDTH ( 32 ),
+         .ADDR_WIDTH ( 32 )
+    ) 
+    bus_bridge_U3_4 (
+        .clk (ap_clk),
+        .rst_n (ap_rst_n),
+        // interface to the HLS core    
+        .rsp_empty_n (freelist_bus_3_1_V_rsp_empty_n),    
+        .rsp_full_n (freelist_bus_3_1_V_req_full_n),
+        .req_write (freelist_bus_3_1_V_req_write),
+        .req_din (freelist_bus_3_1_V_req_din),
+        .rsp_read (freelist_bus_3_1_V_rsp_read),
+        .address (freelist_bus_3_1_V_address),
+        .size (freelist_bus_3_1_V_size),
+        .dataout (freelist_bus_3_1_V_dataout),
+        .datain (freelist_bus_3_1_V_datain),
+        // req/resp/write interface to leap    
+        .writeReq (writeReq3_4),
+        .writeReq_data (writeReq_data3_4),
+        .writeReq_addr (writeReq_addr3_4),
+        .writeAck (writeAck3_4),
+        .readReq (readReq3_4),
+        .readReq_addr (readReq_addr3_4),
+        .readAck (readAck3_4),
+        .readReq_data (readReq_data3_4)
     );
 
    `ifndef CENTRE_BUFFER_ONCHIP

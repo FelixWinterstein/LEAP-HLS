@@ -71,6 +71,7 @@ typedef Bit#(512) MEM_DATA0;
 typedef Bit#(8) MEM_DATA1;
 typedef Bit#(96) MEM_DATA2;
 typedef Bit#(64) MEM_DATA3;
+typedef Bit#(32) MEM_DATA4;
 
 typedef struct {
     Bit#(64) cntr;
@@ -81,18 +82,14 @@ typedef struct {
 
 
 
-typedef UInt#(400) TD_in1;
+typedef Bit#(400) TD_in1;
 typedef Bit#(512) TD_in1_mmap;
-typedef UInt#(32) TD_in2;
-typedef UInt#(8) TD_in3;
-typedef UInt#(48) TD_in4;
-typedef UInt#(48) TD_out1;
-typedef UInt#(32) TD_out2;
-typedef UInt#(512) TD_bus0;
-typedef UInt#(8) TD_bus1;
-typedef UInt#(96) TD_bus2;
-typedef UInt#(64) TD_bus3;
-typedef UInt#(32) TA;
+typedef Bit#(32) TD_in2;
+typedef Bit#(8) TD_in3;
+typedef Bit#(48) TD_in4;
+typedef Bit#(48) TD_out1;
+typedef Bit#(32) TD_out2;
+typedef Bit#(32) TA;
 
 
 
@@ -117,25 +114,30 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     //
     // ====================================================================
 
-    // memories 
+
+    let freelistInitFileName <- getGlobalStringUID("freelist_initialization.dat");
     
     PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad0_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST0, `CACHE_ENTRIES00, addCaches);
     PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad0_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST1, `CACHE_ENTRIES01, addCaches);
     PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad0_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST2, `CACHE_ENTRIES02, addCaches);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA4) scratchpad0_4 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST3, `CACHE_ENTRIES04, addCaches,freelistInitFileName);
 
     `ifndef REDUCE_PAR_TO_1
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad1_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST3, `CACHE_ENTRIES10, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad1_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST4, `CACHE_ENTRIES11, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad1_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST5, `CACHE_ENTRIES12, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad1_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST4, `CACHE_ENTRIES10, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad1_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST5, `CACHE_ENTRIES11, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad1_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST6, `CACHE_ENTRIES12, addCaches);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA4) scratchpad1_4 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST7, `CACHE_ENTRIES14, addCaches,freelistInitFileName);
 
     `ifndef REDUCE_PAR_TO_2
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad2_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST6, `CACHE_ENTRIES20, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad2_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST7, `CACHE_ENTRIES21, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad2_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST8, `CACHE_ENTRIES22, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad2_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST8, `CACHE_ENTRIES20, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad2_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST9, `CACHE_ENTRIES21, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad2_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST10, `CACHE_ENTRIES22, addCaches);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA4) scratchpad2_4 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST11, `CACHE_ENTRIES24, addCaches,freelistInitFileName);
     
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad3_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST9, `CACHE_ENTRIES30, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad3_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST10, `CACHE_ENTRIES31, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad3_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST11, `CACHE_ENTRIES32, addCaches); 
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) scratchpad3_0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST12, `CACHE_ENTRIES30, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA1) scratchpad3_1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST13, `CACHE_ENTRIES31, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA2) scratchpad3_2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST14, `CACHE_ENTRIES32, addCaches); 
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA4) scratchpad3_4 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST15, `CACHE_ENTRIES34, addCaches,freelistInitFileName);
     `endif
     `endif
     
@@ -157,18 +159,18 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     mkCoherentScratchpadController(`VDEV_SCRATCH_COH_MEMPERF_DATA, `VDEV_SCRATCH_COH_MEMPERF_BITS, addr_size, data_size, coh_controller_conf);
 
     // memory0_3
-    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad0_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST12, `CACHE_ENTRIES03, addCaches, True); 
+    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad0_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST16, `CACHE_ENTRIES03, addCaches, True); 
 
     `ifndef REDUCE_PAR_TO_1
     // memory1_3
-    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad1_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST13, `CACHE_ENTRIES13, addCaches, False);
+    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad1_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST17, `CACHE_ENTRIES13, addCaches, False);
 
     `ifndef REDUCE_PAR_TO_2
     // memory2_3
-    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad2_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST14, `CACHE_ENTRIES23, addCaches, False);
+    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad2_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST18, `CACHE_ENTRIES23, addCaches, False);
 
     // memory3_3
-    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad3_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST15, `CACHE_ENTRIES33, addCaches, False);
+    COHERENTSP_IFC#(MEM_ADDRESS, MEM_DATA3) scratchpad3_3 <- mkCoherentSPInterface(`VDEV_SCRATCH_MEMTEST19, `CACHE_ENTRIES33, addCaches, False);
     `endif
     `endif
     `endif
@@ -243,7 +245,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
 
 
     // HLS IP
-    MyIP#(TD_in1, TD_in2, TD_in3, TD_in4, TD_out1, TD_out2, TD_bus0, TD_bus1, TD_bus2, TD_bus3, TA) filtering_algorithm_top_wrapper <- mkMyIP;
+    MyIP#(TD_in1, TD_in2, TD_in3, TD_in4, TD_out1, TD_out2, MEM_DATA0, MEM_DATA1, MEM_DATA2, MEM_DATA3, MEM_DATA4, TA) filtering_algorithm_top_wrapper <- mkMyIP;
 
 
     // ====================================================================
@@ -261,16 +263,15 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
             1: state <= STATE_start;
             2: begin
                 state <= STATE_test_done;
-                cntrInFifo.enq(unpack(truncate(cmd.cntr)));
+                cntrInFifo.enq(truncate(cmd.cntr));
                 //$display("%x",unpack(cmd.cntr));
                end
         endcase
         
-        n <= unpack(cmd.n);
-        k <= unpack(cmd.k);
+        n <= cmd.n; // pick up the number of data points from the host code ( in connected_application-test.cpp )
+        k <= cmd.k; // pick up the number of clusters from the host code ( in connected_application-test.cpp )
 
-        // get nIterations from dynamic parameter
-        nIterations <= unpack(param_nIterations);
+        nIterations <= param_nIterations; // pick up the number of clustering iterations from a dynamic parameter ( passed as a command line argument)
             
         debugLog.record($format("goGetCommand: command: %s", 
                         ((pack(cmd.command)[1:0] == 1)? "processing" : "finish") ));
@@ -284,7 +285,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     rule mmapTreeInitReadReq ( state == STATE_processing && !treeDataMmapRequestPending.notEmpty && treeDataMmapFifo.notFull ); 
 
         TA a = treeDataMmapCounter | (0*(1<<`MEM_TEST_SHIFT));
-        scratchpadTreeInit.setReadReq(truncate(pack(a))); 
+        scratchpadTreeInit.setReadReq(truncate(a)); 
         treeDataMmapCounter <= treeDataMmapCounter +1;  
         treeDataMmapRequestPending.enq(True);
     endrule 
@@ -367,13 +368,11 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
         treeDataInCounter <= treeDataInCounter + 1;
         //filtering_algorithm_top_wrapper.i_node_data( treeDataIn.sub(treeDataInCounter) );
 
-        TD_in1 d = unpack(truncate(treeDataMmapFifo.first));
+        TD_in1 d = truncate(treeDataMmapFifo.first);
         treeDataMmapFifo.deq;
         filtering_algorithm_top_wrapper.i_node_data( d );
 
         //`ifdef VERBOSE
-        //debugLog.record($format("[%d] reading i_node_data from FIFO: (%d) val = %x", unpack(cycle), treeDataInCounter, treeDataIn.sub(treeDataInCounter)));
-        //$display("[%d] reading i_node_data from FIFO: (%d) val = %x", unpack(cycle), treeDataInCounter, treeDataIn.sub(treeDataInCounter));
         debugLog.record($format("[%d] reading i_node_data from FIFO: (%d) val = %x", unpack(cycle), treeDataInCounter, d));
         $display("[%d] reading i_node_data from FIFO: (%d) val = %x", unpack(cycle), treeDataInCounter, d);
         //`endif        
@@ -422,13 +421,13 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
         clustersOutFifo.deq;
         TD_out1 d = cntrOut.sub(cntrOutCounter);
         TD_out1 err = clustersOutFifo.first-d;
-        stdio.printf(clustersOutputMsg, list3(zeroExtend(pack(clustersOutFifo.first)),zeroExtend(pack(d)),signExtend(pack(err))));
+        stdio.printf(clustersOutputMsg, list3(zeroExtend(clustersOutFifo.first),zeroExtend(d),signExtend(err)));
         cntrOutCounter <= cntrOutCounter + 1;
     endrule 
 
     rule distortion_out_stdio (distortionOutFifo.notEmpty);        
         distortionOutFifo.deq;
-        stdio.printf(distortionOutputMsg, list2(zeroExtend(pack(distortionOutFifo.first)),signExtend(pack(distortionOutFifo.first-distortionOut.sub(distortionOutCounter)))));
+        stdio.printf(distortionOutputMsg, list2(zeroExtend(distortionOutFifo.first),signExtend(distortionOutFifo.first-distortionOut.sub(distortionOutCounter))));
         distortionOutCounter <= distortionOutCounter + 1;
     endrule 
 
@@ -443,8 +442,8 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     rule hlsBusWriteReq0_0 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
         TA a = filtering_algorithm_top_wrapper.writeAddr0_0() | (1*(1<<`MEM_TEST_SHIFT));
-        TD_bus0 d = filtering_algorithm_top_wrapper.writeData0_0();
-        scratchpad0_0.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        MEM_DATA0 d = filtering_algorithm_top_wrapper.writeData0_0();
+        scratchpad0_0.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem0_0 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -455,9 +454,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq0_1 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr0_1() | (5*(1<<`MEM_TEST_SHIFT));
-        TD_bus1 d = filtering_algorithm_top_wrapper.writeData0_1();
-        scratchpad0_1.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr0_1() | (2*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA1 d = filtering_algorithm_top_wrapper.writeData0_1();
+        scratchpad0_1.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem0_1 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -468,9 +467,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq0_2 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr0_2() | (9*(1<<`MEM_TEST_SHIFT));
-        TD_bus2 d = filtering_algorithm_top_wrapper.writeData0_2();
-        scratchpad0_2.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr0_2() | (3*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA2 d = filtering_algorithm_top_wrapper.writeData0_2();
+        scratchpad0_2.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem0_2 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -482,9 +481,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq0_3 ( state == STATE_processing );              
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr0_3() | (13*(1<<`MEM_TEST_SHIFT));
-        TD_bus3 d = filtering_algorithm_top_wrapper.writeData0_3();
-        scratchpad0_3.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr0_3() | (4*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA3 d = filtering_algorithm_top_wrapper.writeData0_3();
+        scratchpad0_3.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem0_3 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -493,14 +492,27 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule hlsBusWriteReq0_4 ( state == STATE_processing );               
+        // this rule fires if the core wants to write 
+        TA a = filtering_algorithm_top_wrapper.writeAddr0_4() | (5*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA4 d = filtering_algorithm_top_wrapper.writeData0_4();
+        scratchpad0_4.setWriteReq(truncate(a), zeroExtend(d));
+
+        `ifdef VERBOSE
+        debugLog.record($format("[%d] mem0_4 write request: addr = %x, val = %x",unpack(cycle),a,d));
+        $display("[%d] mem0_4 write request: addr = %x, val = %x",unpack(cycle),a,d);
+        `endif
+    endrule 
+
 
     `ifndef REDUCE_PAR_TO_1
     (* fire_when_enabled *)
     rule hlsBusWriteReq1_0 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr1_0() | (2*(1<<`MEM_TEST_SHIFT));
-        TD_bus0 d = filtering_algorithm_top_wrapper.writeData1_0();
-        scratchpad1_0.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_0() | (6*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA0 d = filtering_algorithm_top_wrapper.writeData1_0();
+        scratchpad1_0.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem1_0 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -511,9 +523,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq1_1 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr1_1() | (6*(1<<`MEM_TEST_SHIFT));
-        TD_bus1 d = filtering_algorithm_top_wrapper.writeData1_1();
-        scratchpad1_1.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_1() | (7*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA1 d = filtering_algorithm_top_wrapper.writeData1_1();
+        scratchpad1_1.setWriteReq(truncate(a), zeroExtend(d));
         
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem1_1 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -524,9 +536,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq1_2 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr1_2() | (10*(1<<`MEM_TEST_SHIFT));
-        TD_bus2 d = filtering_algorithm_top_wrapper.writeData1_2();
-        scratchpad1_2.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_2() | (8*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA2 d = filtering_algorithm_top_wrapper.writeData1_2();
+        scratchpad1_2.setWriteReq(truncate(a), zeroExtend(d));
        
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem1_2 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -538,9 +550,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq1_3 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr1_3() | (13*(1<<`MEM_TEST_SHIFT));
-        TD_bus3 d = filtering_algorithm_top_wrapper.writeData1_3();
-        scratchpad1_3.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_3() | (9*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA3 d = filtering_algorithm_top_wrapper.writeData1_3();
+        scratchpad1_3.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem1_3 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -549,14 +561,27 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule hlsBusWriteReq1_4 ( state == STATE_processing );               
+        // this rule fires if the core wants to write 
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_4() | (10*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA4 d = filtering_algorithm_top_wrapper.writeData1_4();
+        scratchpad1_4.setWriteReq(truncate(a), zeroExtend(d));
+
+        `ifdef VERBOSE
+        debugLog.record($format("[%d] mem1_4 write request: addr = %x, val = %x",unpack(cycle),a,d));
+        $display("[%d] mem1_4 write request: addr = %x, val = %x",unpack(cycle),a,d);
+        `endif
+    endrule 
+
 
     `ifndef REDUCE_PAR_TO_2
     (* fire_when_enabled *)
     rule hlsBusWriteReq2_0 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr2_0() | (3*(1<<`MEM_TEST_SHIFT));
-        TD_bus0 d = filtering_algorithm_top_wrapper.writeData2_0();
-        scratchpad2_0.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_0() | (11*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA0 d = filtering_algorithm_top_wrapper.writeData2_0();
+        scratchpad2_0.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem2_0 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -567,9 +592,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq2_1 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr2_1() | (7*(1<<`MEM_TEST_SHIFT));
-        TD_bus1 d = filtering_algorithm_top_wrapper.writeData2_1();
-        scratchpad2_1.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_1() | (12*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA1 d = filtering_algorithm_top_wrapper.writeData2_1();
+        scratchpad2_1.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem2_1 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -580,9 +605,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq2_2 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr2_2() | (11*(1<<`MEM_TEST_SHIFT));
-        TD_bus2 d = filtering_algorithm_top_wrapper.writeData2_2();
-        scratchpad2_2.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_2() | (13*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA2 d = filtering_algorithm_top_wrapper.writeData2_2();
+        scratchpad2_2.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem2_2 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -594,9 +619,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq2_3 ( state == STATE_processing  );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr2_3() | (13*(1<<`MEM_TEST_SHIFT));
-        TD_bus3 d = filtering_algorithm_top_wrapper.writeData2_3();
-        scratchpad2_3.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_3() | (14*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA3 d = filtering_algorithm_top_wrapper.writeData2_3();
+        scratchpad2_3.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem2_3 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -606,11 +631,25 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     `endif
 
     (* fire_when_enabled *)
+    rule hlsBusWriteReq2_4 ( state == STATE_processing );               
+        // this rule fires if the core wants to write 
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_4() | (15*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA4 d = filtering_algorithm_top_wrapper.writeData2_4();
+        scratchpad2_4.setWriteReq(truncate(a), zeroExtend(d));
+
+        `ifdef VERBOSE
+        debugLog.record($format("[%d] mem2_4 write request: addr = %x, val = %x",unpack(cycle),a,d));
+        $display("[%d] mem2_4 write request: addr = %x, val = %x",unpack(cycle),a,d);
+        `endif
+    endrule 
+
+
+    (* fire_when_enabled *)
     rule hlsBusWriteReq3_0 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr3_0() | (4*(1<<`MEM_TEST_SHIFT));
-        TD_bus0 d = filtering_algorithm_top_wrapper.writeData3_0();
-        scratchpad3_0.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_0() | (16*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA0 d = filtering_algorithm_top_wrapper.writeData3_0();
+        scratchpad3_0.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem3_0 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -621,9 +660,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq3_1 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr3_1() | (8*(1<<`MEM_TEST_SHIFT));
-        TD_bus1 d = filtering_algorithm_top_wrapper.writeData3_1();
-        scratchpad3_1.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_1() | (17*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA1 d = filtering_algorithm_top_wrapper.writeData3_1();
+        scratchpad3_1.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem3_1 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -634,9 +673,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq3_2 ( state == STATE_processing );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr3_2() | (12*(1<<`MEM_TEST_SHIFT));
-        TD_bus2 d = filtering_algorithm_top_wrapper.writeData3_2();
-        scratchpad3_2.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_2() | (18*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA2 d = filtering_algorithm_top_wrapper.writeData3_2();
+        scratchpad3_2.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem3_2 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -648,9 +687,9 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusWriteReq3_3 ( state == STATE_processing  );               
         // this rule fires if the core wants to write 
-        TA a = filtering_algorithm_top_wrapper.writeAddr3_3() | (13*(1<<`MEM_TEST_SHIFT));
-        TD_bus3 d = filtering_algorithm_top_wrapper.writeData3_3();
-        scratchpad3_3.setWriteReq(truncate(pack(a)), zeroExtend(pack(d)));
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_3() | (19*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA3 d = filtering_algorithm_top_wrapper.writeData3_3();
+        scratchpad3_3.setWriteReq(truncate(a), zeroExtend(d));
 
         `ifdef VERBOSE
         debugLog.record($format("[%d] mem3_3 write request: addr = %x, val = %x",unpack(cycle),a,d));
@@ -658,6 +697,20 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
         `endif
     endrule 
     `endif
+
+    (* fire_when_enabled *)
+    rule hlsBusWriteReq3_4 ( state == STATE_processing );               
+        // this rule fires if the core wants to write 
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_4() | (20*(1<<`MEM_TEST_SHIFT));
+        MEM_DATA4 d = filtering_algorithm_top_wrapper.writeData3_4();
+        scratchpad3_4.setWriteReq(truncate(a), zeroExtend(d));
+
+        `ifdef VERBOSE
+        debugLog.record($format("[%d] mem3_4 write request: addr = %x, val = %x",unpack(cycle),a,d));
+        $display("[%d] mem3_4 write request: addr = %x, val = %x",unpack(cycle),a,d);
+        `endif
+    endrule 
+
     `endif
     `endif
 
@@ -685,6 +738,11 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     endrule 
     `endif
 
+    rule hlsEnWrite0_4 ( state == STATE_processing && scratchpad0_4.enWrite  );
+        // tell the core that it is allowed to issue a write
+        filtering_algorithm_top_wrapper.enWrite0_4();          
+    endrule
+
 
     `ifndef REDUCE_PAR_TO_1
 
@@ -710,6 +768,11 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     endrule 
     `endif
 
+    rule hlsEnWrite1_4 ( state == STATE_processing && scratchpad1_4.enWrite  );
+        // tell the core that it is allowed to issue a write
+        filtering_algorithm_top_wrapper.enWrite1_4();          
+    endrule
+
 
     `ifndef REDUCE_PAR_TO_2
     rule hlsEnWrite2_0 ( state == STATE_processing && scratchpad2_0.enWrite );
@@ -734,6 +797,11 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     endrule 
     `endif
 
+    rule hlsEnWrite2_4 ( state == STATE_processing && scratchpad2_4.enWrite  );
+        // tell the core that it is allowed to issue a write
+        filtering_algorithm_top_wrapper.enWrite2_4();          
+    endrule
+
 
     rule hlsEnWrite3_0 ( state == STATE_processing && scratchpad3_0.enWrite );
         // tell the core that it is allowed to issue a write
@@ -756,6 +824,11 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
         filtering_algorithm_top_wrapper.enWrite3_3();          
     endrule 
     `endif
+
+    rule hlsEnWrite3_4 ( state == STATE_processing && scratchpad3_4.enWrite  );
+        // tell the core that it is allowed to issue a write
+        filtering_algorithm_top_wrapper.enWrite3_4();          
+    endrule
     `endif
     `endif
 
@@ -769,112 +842,138 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     (* fire_when_enabled *)
     rule hlsBusReadReq0_0 (state == STATE_processing);    
         TA a = filtering_algorithm_top_wrapper.readRequest0_0() | (1*(1<<`MEM_TEST_SHIFT));
-        scratchpad0_0.setReadReq(truncate(pack(a)));
+        scratchpad0_0.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq0_1 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest0_1() | (5*(1<<`MEM_TEST_SHIFT));
-        scratchpad0_1.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest0_1() | (2*(1<<`MEM_TEST_SHIFT));
+        scratchpad0_1.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq0_2 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest0_2() | (9*(1<<`MEM_TEST_SHIFT));
-        scratchpad0_2.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest0_2() | (3*(1<<`MEM_TEST_SHIFT));
+        scratchpad0_2.setReadReq(truncate(a));
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     (* fire_when_enabled *)
     rule hlsBusReadReq0_3 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest0_3() | (13*(1<<`MEM_TEST_SHIFT));
-        scratchpad0_3.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest0_3() | (4*(1<<`MEM_TEST_SHIFT));
+        scratchpad0_3.setReadReq(truncate(a));
     endrule  
     `endif
+
+    (* fire_when_enabled *)
+    rule hlsBusReadReq0_4 (state == STATE_processing);    
+        TA a = filtering_algorithm_top_wrapper.readRequest0_4() | (5*(1<<`MEM_TEST_SHIFT));
+        scratchpad0_4.setReadReq(truncate(a));
+    endrule 
 
 
     `ifndef REDUCE_PAR_TO_1
 
     (* fire_when_enabled *)
     rule hlsBusReadReq1_0 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest1_0() | (2*(1<<`MEM_TEST_SHIFT));        
-        scratchpad1_0.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest1_0() | (6*(1<<`MEM_TEST_SHIFT));        
+        scratchpad1_0.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq1_1 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest1_1() | (6*(1<<`MEM_TEST_SHIFT));
-        scratchpad1_1.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest1_1() | (7*(1<<`MEM_TEST_SHIFT));
+        scratchpad1_1.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq1_2 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest1_2() | (10*(1<<`MEM_TEST_SHIFT));
-        scratchpad1_2.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest1_2() | (8*(1<<`MEM_TEST_SHIFT));
+        scratchpad1_2.setReadReq(truncate(a));
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     (* fire_when_enabled *)
     rule hlsBusReadReq1_3 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest1_3() | (13*(1<<`MEM_TEST_SHIFT));
-        scratchpad1_3.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest1_3() | (9*(1<<`MEM_TEST_SHIFT));
+        scratchpad1_3.setReadReq(truncate(a));
     endrule  
     `endif
+
+    (* fire_when_enabled *)
+    rule hlsBusReadReq1_4 (state == STATE_processing);    
+        TA a = filtering_algorithm_top_wrapper.readRequest1_4() | (10*(1<<`MEM_TEST_SHIFT));
+        scratchpad1_4.setReadReq(truncate(a));
+    endrule 
+
 
     `ifndef REDUCE_PAR_TO_2
 
     (* fire_when_enabled *)
     rule hlsBusReadReq2_0 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest2_0() | (3*(1<<`MEM_TEST_SHIFT));
-        scratchpad2_0.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest2_0() | (11*(1<<`MEM_TEST_SHIFT));
+        scratchpad2_0.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq2_1 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest2_1() | (7*(1<<`MEM_TEST_SHIFT));
-        scratchpad2_1.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest2_1() | (12*(1<<`MEM_TEST_SHIFT));
+        scratchpad2_1.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq2_2 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest2_2() | (11*(1<<`MEM_TEST_SHIFT));
-        scratchpad2_2.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest2_2() | (13*(1<<`MEM_TEST_SHIFT));
+        scratchpad2_2.setReadReq(truncate(a));
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     (* fire_when_enabled *)
     rule hlsBusReadReq2_3 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest2_3() | (13*(1<<`MEM_TEST_SHIFT));
-        scratchpad2_3.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest2_3() | (14*(1<<`MEM_TEST_SHIFT));
+        scratchpad2_3.setReadReq(truncate(a));
     endrule  
     `endif
+
+    (* fire_when_enabled *)
+    rule hlsBusReadReq2_4 (state == STATE_processing);    
+        TA a = filtering_algorithm_top_wrapper.readRequest2_4() | (15*(1<<`MEM_TEST_SHIFT));
+        scratchpad2_4.setReadReq(truncate(a));
+    endrule 
 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq3_0 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest3_0() | (4*(1<<`MEM_TEST_SHIFT));
-        scratchpad3_0.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest3_0() | (16*(1<<`MEM_TEST_SHIFT));
+        scratchpad3_0.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq3_1 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest3_1() | (8*(1<<`MEM_TEST_SHIFT));
-        scratchpad3_1.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest3_1() | (17*(1<<`MEM_TEST_SHIFT));
+        scratchpad3_1.setReadReq(truncate(a));
     endrule 
 
     (* fire_when_enabled *)
     rule hlsBusReadReq3_2 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest3_2() | (12*(1<<`MEM_TEST_SHIFT));
-        scratchpad3_2.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest3_2() | (18*(1<<`MEM_TEST_SHIFT));
+        scratchpad3_2.setReadReq(truncate(a));
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     (* fire_when_enabled *)
     rule hlsBusReadReq3_3 (state == STATE_processing);    
-        TA a = filtering_algorithm_top_wrapper.readRequest3_3() | (13*(1<<`MEM_TEST_SHIFT));
-        scratchpad3_3.setReadReq(truncate(pack(a)));
+        TA a = filtering_algorithm_top_wrapper.readRequest3_3() | (19*(1<<`MEM_TEST_SHIFT));
+        scratchpad3_3.setReadReq(truncate(a));
     endrule  
     `endif
+
+    (* fire_when_enabled *)
+    rule hlsBusReadReq3_4 (state == STATE_processing);    
+        TA a = filtering_algorithm_top_wrapper.readRequest3_4() | (20*(1<<`MEM_TEST_SHIFT));
+        scratchpad3_4.setReadReq(truncate(a));
+    endrule 
+
     `endif
     `endif
 
@@ -882,122 +981,147 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
 
     rule hlsBusReadResp0_0 (state == STATE_processing); 
         let resp <- scratchpad0_0.readResp();   
-        TD_bus0 d = truncate(unpack(resp));
+        MEM_DATA0 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData0_0(d);
         //$display("[%d] mem0_0 read response: val = %x",unpack(cycle),d);
     endrule 
 
     rule hlsBusReadResp0_1 (state == STATE_processing); 
         let resp <- scratchpad0_1.readResp();   
-        TD_bus1 d = truncate(unpack(resp));
+        MEM_DATA1 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData0_1(d);
     endrule 
 
     rule hlsBusReadResp0_2 (state == STATE_processing); 
         let resp <- scratchpad0_2.readResp();   
-        TD_bus2 d = truncate(unpack(resp));
+        MEM_DATA2 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData0_2(d);
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     rule hlsBusReadResp0_3 (state == STATE_processing); 
         let resp <- scratchpad0_3.readResp();   
-        TD_bus3 d = truncate(unpack(resp));
+        MEM_DATA3 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData0_3(d);
         //$display("[%d] mem0_3 read response: val = %x",unpack(cycle),d);
     endrule   
     `endif
+
+    rule hlsBusReadResp0_4 (state == STATE_processing); 
+        let resp <- scratchpad0_4.readResp();   
+        MEM_DATA4 d = truncate(resp);
+        filtering_algorithm_top_wrapper.readData0_4(d);
+    endrule 
 
 
     `ifndef REDUCE_PAR_TO_1
 
     rule hlsBusReadResp1_0 (state == STATE_processing); 
         let resp <- scratchpad1_0.readResp();   
-        TD_bus0 d = truncate(unpack(resp));
+        MEM_DATA0 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData1_0(d);
         //$display("[%d] mem1_0 read response: val = %x",unpack(cycle),d);
     endrule 
 
     rule hlsBusReadResp1_1 (state == STATE_processing); 
         let resp <- scratchpad1_1.readResp();   
-        TD_bus1 d = truncate(unpack(resp));
+        MEM_DATA1 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData1_1(d);
     endrule 
 
     rule hlsBusReadResp1_2 (state == STATE_processing); 
         let resp <- scratchpad1_2.readResp();   
-        TD_bus2 d = truncate(unpack(resp));
+        MEM_DATA2 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData1_2(d);
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     rule hlsBusReadResp1_3 (state == STATE_processing); 
         let resp <- scratchpad1_3.readResp();   
-        TD_bus3 d = truncate(unpack(resp));
+        MEM_DATA3 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData1_3(d);
         //$display("[%d] mem1_3 read response: val = %x",unpack(cycle),d);
     endrule   
     `endif
+
+    rule hlsBusReadResp1_4 (state == STATE_processing); 
+        let resp <- scratchpad1_4.readResp();   
+        MEM_DATA4 d = truncate(resp);
+        filtering_algorithm_top_wrapper.readData1_4(d);
+    endrule 
+
 
 
     `ifndef REDUCE_PAR_TO_2
 
     rule hlsBusReadResp2_0 (state == STATE_processing); 
         let resp <- scratchpad2_0.readResp();   
-        TD_bus0 d = truncate(unpack(resp));
+        MEM_DATA0 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData2_0(d);
         //$display("[%d] mem2_0 read response: val = %x",unpack(cycle),d);
     endrule 
 
     rule hlsBusReadResp2_1 (state == STATE_processing); 
         let resp <- scratchpad2_1.readResp();   
-        TD_bus1 d = truncate(unpack(resp));
+        MEM_DATA1 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData2_1(d);
     endrule 
 
     rule hlsBusReadResp2_2 (state == STATE_processing); 
         let resp <- scratchpad2_2.readResp();   
-        TD_bus2 d = truncate(unpack(resp));
+        MEM_DATA2 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData2_2(d);
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     rule hlsBusReadResp2_3 (state == STATE_processing); 
         let resp <- scratchpad2_3.readResp();   
-        TD_bus3 d = truncate(unpack(resp));
+        MEM_DATA3 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData2_3(d);
         //$display("[%d] mem2_3 read response: val = %x",unpack(cycle),d);
     endrule   
     `endif
 
+    rule hlsBusReadResp2_4 (state == STATE_processing); 
+        let resp <- scratchpad2_4.readResp();   
+        MEM_DATA4 d = truncate(resp);
+        filtering_algorithm_top_wrapper.readData2_4(d);
+    endrule 
+
 
     rule hlsBusReadResp3_0 (state == STATE_processing); 
         let resp <- scratchpad3_0.readResp();   
-        TD_bus0 d = truncate(unpack(resp));
+        MEM_DATA0 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData3_0(d);
         //$display("[%d] mem3_0 read response: val = %x",unpack(cycle),d);
     endrule 
 
     rule hlsBusReadResp3_1 (state == STATE_processing); 
         let resp <- scratchpad3_1.readResp();   
-        TD_bus1 d = truncate(unpack(resp));
+        MEM_DATA1 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData3_1(d);
     endrule 
 
     rule hlsBusReadResp3_2 (state == STATE_processing); 
         let resp <- scratchpad3_2.readResp();   
-        TD_bus2 d = truncate(unpack(resp));
+        MEM_DATA2 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData3_2(d);
     endrule 
 
     `ifndef CENTRE_BUFFER_ONCHIP
     rule hlsBusReadResp3_3 (state == STATE_processing); 
         let resp <- scratchpad3_3.readResp();   
-        TD_bus3 d = truncate(unpack(resp));
+        MEM_DATA3 d = truncate(resp);
         filtering_algorithm_top_wrapper.readData3_3(d);
         //$display("[%d] mem3_3 read response: val = %x",unpack(cycle),d);
     endrule   
     `endif
+
+    rule hlsBusReadResp3_4 (state == STATE_processing); 
+        let resp <- scratchpad3_4.readResp();   
+        MEM_DATA4 d = truncate(resp);
+        filtering_algorithm_top_wrapper.readData3_4(d);
+    endrule 
     `endif
     `endif
 

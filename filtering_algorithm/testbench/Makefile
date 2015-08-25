@@ -2,6 +2,7 @@ all:
 	rm -f *.v
 	rm -fR obj
 	cp ../generated_verilog/*.v .
+	cp ../generated_verilog/*.hex .
 	cp ../wrappers/verilog/*.v .
 	cp ../wrappers/bluespec/*.bsv .
 	mkdir obj
@@ -20,4 +21,5 @@ run:
 clean:
 	rm -f MyIP.bsv
 	rm -f *.v
+	rm -f *.hex
 	rm -fR obj

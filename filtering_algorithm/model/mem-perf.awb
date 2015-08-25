@@ -30,5 +30,10 @@
 %param --global CACHE_ENTRIES23 1024 "Number of cache entries for port 2"
 %param --global CACHE_ENTRIES33 1024 "Number of cache entries for port 3"
 
+%param --global CACHE_ENTRIES04 1024 "Number of cache entries for port 0"
+%param --global CACHE_ENTRIES14 1024 "Number of cache entries for port 1"
+%param --global CACHE_ENTRIES24 1024 "Number of cache entries for port 2"
+%param --global CACHE_ENTRIES34 1024 "Number of cache entries for port 3"
+
 %param SYNTH_BOUNDARY mkMemTester "name of synthesis boundary"
 

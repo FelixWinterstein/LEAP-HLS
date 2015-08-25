@@ -15,7 +15,7 @@
 
 
 
-interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd_out1, type tpd_out2, type tpd_bus0, type tpd_bus1, type tpd_bus2, type tpd_bus3, type tpa); 
+interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd_out1, type tpd_out2, type tpd_bus0, type tpd_bus1, type tpd_bus2, type tpd_bus3, type tpd_bus4, type tpa); 
 
     // drive inputs/outputs via methods
    
@@ -64,6 +64,8 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method Action readData0_3(tpd_bus3 readReq_data0_3);
     method Action enWrite0_3(); 
     `endif
+    method Action readData0_4(tpd_bus4 readReq_data0_4);
+    method Action enWrite0_4();  
   
     `ifndef REDUCE_PAR_TO_1
     method Action readData1_0(tpd_bus0 readReq_data1_0);
@@ -76,6 +78,8 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method Action readData1_3(tpd_bus3 readReq_data1_3);
     method Action enWrite1_3(); 
     `endif
+    method Action readData1_4(tpd_bus4 readReq_data1_4);
+    method Action enWrite1_4();  
 
     `ifndef REDUCE_PAR_TO_2
     method Action readData2_0(tpd_bus0 readReq_data2_0);
@@ -88,6 +92,8 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method Action readData2_3(tpd_bus3 readReq_data2_3);
     method Action enWrite2_3(); 
     `endif
+    method Action readData2_4(tpd_bus4 readReq_data2_4);
+    method Action enWrite2_4();  
 
     method Action readData3_0(tpd_bus0 readReq_data3_0);
     method Action enWrite3_0();
@@ -99,6 +105,9 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method Action readData3_3(tpd_bus3 readReq_data3_3);
     method Action enWrite3_3(); 
     `endif 
+    method Action readData3_4(tpd_bus4 readReq_data3_4);
+    method Action enWrite3_4();  
+
     `endif
     `endif
 
@@ -118,6 +127,9 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method tpa readRequest0_3();
     method Bool accessCriticalRegion0();
     `endif
+    method tpd_bus4 writeData0_4();
+    method tpa writeAddr0_4();
+    method tpa readRequest0_4();
 
     `ifndef REDUCE_PAR_TO_1
     method tpd_bus0 writeData1_0();
@@ -135,6 +147,9 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method tpa readRequest1_3();
     method Bool accessCriticalRegion1();
     `endif
+    method tpd_bus4 writeData1_4();
+    method tpa writeAddr1_4();
+    method tpa readRequest1_4();
 
     `ifndef REDUCE_PAR_TO_2
     method tpd_bus0 writeData2_0();
@@ -152,6 +167,9 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method tpa readRequest2_3();
     method Bool accessCriticalRegion2();
     `endif
+    method tpd_bus4 writeData2_4();
+    method tpa writeAddr2_4();
+    method tpa readRequest2_4();
 
     method tpd_bus0 writeData3_0();
     method tpa writeAddr3_0();
@@ -168,6 +186,10 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
     method tpa readRequest3_3();
     method Bool accessCriticalRegion3();
     `endif
+    method tpd_bus4 writeData3_4();
+    method tpa writeAddr3_4();
+    method tpa readRequest3_4();
+
     `endif
     `endif
 
@@ -175,7 +197,7 @@ interface MyIP#(type tpd_in1, type tpd_in2, type tpd_in3, type tpd_in4, type tpd
 endinterface
 
 import "BVI" filtering_algorithm_top_wrapper = 
-    module mkMyIP( MyIP#(    UInt#(n1), UInt#(n2), UInt#(n3), UInt#(n4), UInt#(n5), UInt#(n6), UInt#(n7), UInt#(n8), UInt#(n9), UInt#(n10), UInt#(n11) ) );  
+    module mkMyIP( MyIP#(    Bit#(n1), Bit#(n2), Bit#(n3), Bit#(n4), Bit#(n5), Bit#(n6), Bit#(n7), Bit#(n8), Bit#(n9), Bit#(n10), Bit#(n11), Bit#(n12) ) );  
 
 
         // clock and reset
@@ -233,6 +255,9 @@ import "BVI" filtering_algorithm_top_wrapper =
         method enWrite0_3() enable( writeAck0_3 );
         `endif
 
+        method readData0_4(readReq_data0_4) enable( readAck0_4 );
+        method enWrite0_4() enable( writeAck0_4 );
+
 
         `ifndef REDUCE_PAR_TO_1
         method readData1_0(readReq_data1_0) enable( readAck1_0 );
@@ -248,6 +273,9 @@ import "BVI" filtering_algorithm_top_wrapper =
         method readData1_3(readReq_data1_3) enable( readAck1_3 );
         method enWrite1_3() enable( writeAck1_3 );
         `endif
+
+        method readData1_4(readReq_data1_4) enable( readAck1_4 );
+        method enWrite1_4() enable( writeAck1_4 );
 
         
         `ifndef REDUCE_PAR_TO_2
@@ -265,6 +293,9 @@ import "BVI" filtering_algorithm_top_wrapper =
         method enWrite2_3() enable( writeAck2_3 );
         `endif
 
+        method readData2_4(readReq_data2_4) enable( readAck2_4 );
+        method enWrite2_4() enable( writeAck2_4 );
+
 
         method readData3_0(readReq_data3_0) enable( readAck3_0 );
         method enWrite3_0() enable( writeAck3_0 );
@@ -279,6 +310,10 @@ import "BVI" filtering_algorithm_top_wrapper =
         method readData3_3(readReq_data3_3) enable( readAck3_3 );
         method enWrite3_3() enable( writeAck3_3 );
         `endif
+
+        method readData3_4(readReq_data3_4) enable( readAck3_4 );
+        method enWrite3_4() enable( writeAck3_4 );
+
         `endif
         `endif
         
@@ -303,6 +338,10 @@ import "BVI" filtering_algorithm_top_wrapper =
         method access_critical_region0 accessCriticalRegion0() ready(access_critical_region0_ap_vld);
         `endif
 
+        method writeReq_data0_4 writeData0_4() ready(writeReq0_4);
+        method writeReq_addr0_4 writeAddr0_4() ready(writeReq0_4);
+        method readReq_addr0_4 readRequest0_4() ready(readReq0_4);
+
 
         `ifndef REDUCE_PAR_TO_1
         method writeReq_data1_0 writeData1_0() ready(writeReq1_0);
@@ -323,6 +362,10 @@ import "BVI" filtering_algorithm_top_wrapper =
         method readReq_addr1_3 readRequest1_3() ready(readReq1_3);
         method access_critical_region1 accessCriticalRegion1() ready(access_critical_region1_ap_vld);
         `endif
+
+        method writeReq_data1_4 writeData1_4() ready(writeReq1_4);
+        method writeReq_addr1_4 writeAddr1_4() ready(writeReq1_4);
+        method readReq_addr1_4 readRequest1_4() ready(readReq1_4);
 
 
         `ifndef REDUCE_PAR_TO_2
@@ -345,6 +388,10 @@ import "BVI" filtering_algorithm_top_wrapper =
         method access_critical_region2 accessCriticalRegion2() ready(access_critical_region2_ap_vld);
         `endif
 
+        method writeReq_data2_4 writeData2_4() ready(writeReq2_4);
+        method writeReq_addr2_4 writeAddr2_4() ready(writeReq2_4);
+        method readReq_addr2_4 readRequest2_4() ready(readReq2_4);
+
 
         method writeReq_data3_0 writeData3_0() ready(writeReq3_0);
         method writeReq_addr3_0 writeAddr3_0() ready(writeReq3_0);
@@ -364,6 +411,11 @@ import "BVI" filtering_algorithm_top_wrapper =
         method readReq_addr3_3 readRequest3_3() ready(readReq3_3);
         method access_critical_region3 accessCriticalRegion3() ready(access_critical_region3_ap_vld);
         `endif
+
+        method writeReq_data3_4 writeData3_4() ready(writeReq3_4);
+        method writeReq_addr3_4 writeAddr3_4() ready(writeReq3_4);
+        method readReq_addr3_4 readRequest3_4() ready(readReq3_4);
+
         `endif
         `endif
 
@@ -372,8 +424,8 @@ import "BVI" filtering_algorithm_top_wrapper =
         //... not now ...
 
         // scheduling
-        schedule
-        (   start, 
+        schedule (   
+            start, 
             setN, 
             setK,
             setL,
@@ -399,6 +451,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData0_3,
             enWrite0_3,
             `endif
+            readData0_4,
+            enWrite0_4,
             writeData0_0,
             writeAddr0_0,
             readRequest0_0,
@@ -414,6 +468,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest0_3,
             accessCriticalRegion0,
             `endif
+            writeData0_4,
+            writeAddr0_4,
+            readRequest0_4,
 
             `ifndef REDUCE_PAR_TO_1
             readData1_0,
@@ -426,6 +483,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData1_3,
             enWrite1_3,
             `endif
+            readData1_4,
+            enWrite1_4,
             writeData1_0,
             writeAddr1_0,
             readRequest1_0,
@@ -441,6 +500,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest1_3,
             accessCriticalRegion1,
             `endif
+            writeData1_4,
+            writeAddr1_4,
+            readRequest1_4,
 
             `ifndef REDUCE_PAR_TO_2
             readData2_0,
@@ -453,6 +515,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData2_3,
             enWrite2_3,
             `endif
+            readData2_4,
+            enWrite2_4,
             writeData2_0,
             writeAddr2_0,
             readRequest2_0,
@@ -468,6 +532,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest2_3,
             accessCriticalRegion2,
             `endif
+            writeData2_4,
+            writeAddr2_4,
+            readRequest2_4,
 
             readData3_0,
             enWrite3_0,
@@ -479,6 +546,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData3_3,
             enWrite3_3,
             `endif
+            readData3_4,
+            enWrite3_4,
             writeData3_0,
             writeAddr3_0,
             readRequest3_0,
@@ -494,6 +563,10 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest3_3,
             accessCriticalRegion3,
             `endif
+            writeData3_4,
+            writeAddr3_4,
+            readRequest3_4,
+
             `endif
             `endif
 
@@ -502,7 +575,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             
         ) 
         CF 
-        (   start, 
+        (   
+            start, 
             setN, 
             setK,
             setL,
@@ -516,7 +590,7 @@ import "BVI" filtering_algorithm_top_wrapper =
             cntr_pos_init,
             en_cntr_pos_init,
             en_clusters_out,
-            en_distortion_out,
+            en_distortion_out,            
 
             readData0_0,
             enWrite0_0,
@@ -528,6 +602,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData0_3,
             enWrite0_3,
             `endif
+            readData0_4,
+            enWrite0_4,
             writeData0_0,
             writeAddr0_0,
             readRequest0_0,
@@ -543,6 +619,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest0_3,
             accessCriticalRegion0,
             `endif
+            writeData0_4,
+            writeAddr0_4,
+            readRequest0_4,
 
             `ifndef REDUCE_PAR_TO_1
             readData1_0,
@@ -555,6 +634,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData1_3,
             enWrite1_3,
             `endif
+            readData1_4,
+            enWrite1_4,
             writeData1_0,
             writeAddr1_0,
             readRequest1_0,
@@ -570,6 +651,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest1_3,
             accessCriticalRegion1,
             `endif
+            writeData1_4,
+            writeAddr1_4,
+            readRequest1_4,
 
             `ifndef REDUCE_PAR_TO_2
             readData2_0,
@@ -582,6 +666,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData2_3,
             enWrite2_3,
             `endif
+            readData2_4,
+            enWrite2_4,
             writeData2_0,
             writeAddr2_0,
             readRequest2_0,
@@ -597,6 +683,9 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest2_3,
             accessCriticalRegion2,
             `endif
+            writeData2_4,
+            writeAddr2_4,
+            readRequest2_4,
 
             readData3_0,
             enWrite3_0,
@@ -608,6 +697,8 @@ import "BVI" filtering_algorithm_top_wrapper =
             readData3_3,
             enWrite3_3,
             `endif
+            readData3_4,
+            enWrite3_4,
             writeData3_0,
             writeAddr3_0,
             readRequest3_0,
@@ -623,6 +714,10 @@ import "BVI" filtering_algorithm_top_wrapper =
             readRequest3_3,
             accessCriticalRegion3,
             `endif
+            writeData3_4,
+            writeAddr3_4,
+            readRequest3_4,
+
             `endif
             `endif
 

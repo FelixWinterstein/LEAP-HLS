@@ -25,6 +25,10 @@ def VDEV.SCRATCH.MEMTEST12    "scratch_memtest12";
 def VDEV.SCRATCH.MEMTEST13    "scratch_memtest13";
 def VDEV.SCRATCH.MEMTEST14    "scratch_memtest14";
 def VDEV.SCRATCH.MEMTEST15    "scratch_memtest15";
+def VDEV.SCRATCH.MEMTEST16    "scratch_memtest16";
+def VDEV.SCRATCH.MEMTEST17    "scratch_memtest17";
+def VDEV.SCRATCH.MEMTEST18    "scratch_memtest18";
+def VDEV.SCRATCH.MEMTEST19    "scratch_memtest19";
 
 // registering mmaped private scratchpads for initialization
 def VDEV.SCRATCH.INIT         "scratch_init";

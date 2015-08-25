@@ -15,17 +15,18 @@ import RegFile::*;
 import LFSR::*;
 
 import MyIP::*;
-typedef UInt#(400) TD_in1;
-typedef UInt#(32) TD_in2;
-typedef UInt#(8) TD_in3;
-typedef UInt#(48) TD_in4;
-typedef UInt#(48) TD_out1;
-typedef UInt#(32) TD_out2;
-typedef UInt#(512) TD_bus0;
-typedef UInt#(8) TD_bus1;
-typedef UInt#(96) TD_bus2;
-typedef UInt#(64) TD_bus3;
-typedef UInt#(32) TA;
+typedef Bit#(400) TD_in1;
+typedef Bit#(32) TD_in2;
+typedef Bit#(8) TD_in3;
+typedef Bit#(48) TD_in4;
+typedef Bit#(48) TD_out1;
+typedef Bit#(32) TD_out2;
+typedef Bit#(512) TD_bus0;
+typedef Bit#(8) TD_bus1;
+typedef Bit#(96) TD_bus2;
+typedef Bit#(64) TD_bus3;
+typedef Bit#(32) TD_bus4;
+typedef Bit#(32) TA;
 
 
 typedef 2 READ_MEM_LATENCY; 
@@ -66,7 +67,7 @@ MEMSTATE
 module mkTB();
 
     // here is the IP
-    MyIP#(TD_in1, TD_in2, TD_in3, TD_in4, TD_out1, TD_out2, TD_bus0, TD_bus1, TD_bus2, TD_bus3, TA) filtering_algorithm_top_wrapper <- mkMyIP; 
+    MyIP#(TD_in1, TD_in2, TD_in3, TD_in4, TD_out1, TD_out2, TD_bus0, TD_bus1, TD_bus2, TD_bus3, TD_bus4, TA) filtering_algorithm_top_wrapper <- mkMyIP; 
     
     RegFile#(TA,TD_bus0) memory0_0 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     RegFile#(TA,TD_bus1) memory0_1 <- mkRegFile(0,`MEM_REGION_SIZE-1);
@@ -74,6 +75,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     RegFile#(TA,TD_bus3) memory0_3 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     `endif
+    RegFile#(TA,TD_bus4) memory0_4 <- mkRegFileLoad("freelist_initialization.hex",0,1023);
 
     `ifndef REDUCE_PAR_TO_1
     RegFile#(TA,TD_bus0) memory1_0 <- mkRegFile(0,`MEM_REGION_SIZE-1);
@@ -82,6 +84,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     RegFile#(TA,TD_bus3) memory1_3 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     `endif
+    RegFile#(TA,TD_bus4) memory1_4 <- mkRegFileLoad("freelist_initialization.hex",0,1023);
 
     `ifndef REDUCE_PAR_TO_2
     RegFile#(TA,TD_bus0) memory2_0 <- mkRegFile(0,`MEM_REGION_SIZE-1);
@@ -90,6 +93,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     RegFile#(TA,TD_bus3) memory2_3 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     `endif
+    RegFile#(TA,TD_bus4) memory2_4 <- mkRegFileLoad("freelist_initialization.hex",0,1023);
 
     RegFile#(TA,TD_bus0) memory3_0 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     RegFile#(TA,TD_bus1) memory3_1 <- mkRegFile(0,`MEM_REGION_SIZE-1);
@@ -97,6 +101,8 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     RegFile#(TA,TD_bus3) memory3_3 <- mkRegFile(0,`MEM_REGION_SIZE-1);
     `endif
+    RegFile#(TA,TD_bus4) memory3_4 <- mkRegFileLoad("freelist_initialization.hex",0,1023);
+
     `endif
     `endif
 
@@ -106,6 +112,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     FIFOF#(TA) readAddrFifo0_3 <- mkSizedFIFOF(16);
     `endif
+    FIFOF#(TA) readAddrFifo0_4 <- mkSizedFIFOF(16);
 
     `ifndef REDUCE_PAR_TO_1
     FIFOF#(TA) readAddrFifo1_0 <- mkSizedFIFOF(16);
@@ -114,6 +121,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     FIFOF#(TA) readAddrFifo1_3 <- mkSizedFIFOF(16);
     `endif
+    FIFOF#(TA) readAddrFifo1_4 <- mkSizedFIFOF(16);
 
     `ifndef REDUCE_PAR_TO_2
     FIFOF#(TA) readAddrFifo2_0 <- mkSizedFIFOF(16);
@@ -122,6 +130,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     FIFOF#(TA) readAddrFifo2_3 <- mkSizedFIFOF(16);
     `endif
+    FIFOF#(TA) readAddrFifo2_4 <- mkSizedFIFOF(16);
 
     FIFOF#(TA) readAddrFifo3_0 <- mkSizedFIFOF(16);
     FIFOF#(TA) readAddrFifo3_1 <- mkSizedFIFOF(16);
@@ -129,6 +138,8 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     FIFOF#(TA) readAddrFifo3_3 <- mkSizedFIFOF(16);
     `endif
+    FIFOF#(TA) readAddrFifo3_4 <- mkSizedFIFOF(16);
+
     `endif
     `endif
    
@@ -144,12 +155,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) read_state0_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) read_state0_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) readLatCounter0_0 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter0_1 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter0_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) readLatCounter0_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) readLatCounter0_4 <- mkReg(0);
 
     `ifndef REDUCE_PAR_TO_1
     Reg#(MEMSTATE) read_state1_0 <- mkReg(MEMSTATE_idle);
@@ -158,12 +172,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) read_state1_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) read_state1_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) readLatCounter1_0 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter1_1 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter1_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) readLatCounter1_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) readLatCounter1_4 <- mkReg(0);
 
     `ifndef REDUCE_PAR_TO_2
     Reg#(MEMSTATE) read_state2_0 <- mkReg(MEMSTATE_idle);
@@ -172,12 +189,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) read_state2_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) read_state2_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) readLatCounter2_0 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter2_1 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter2_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) readLatCounter2_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) readLatCounter2_4 <- mkReg(0);
 
     Reg#(MEMSTATE) read_state3_0 <- mkReg(MEMSTATE_idle);
     Reg#(MEMSTATE) read_state3_1 <- mkReg(MEMSTATE_idle);
@@ -185,12 +205,16 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) read_state3_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) read_state3_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) readLatCounter3_0 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter3_1 <- mkReg(0);
     Reg#(UInt#(32)) readLatCounter3_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) readLatCounter3_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) readLatCounter3_4 <- mkReg(0);
+
     `endif
     `endif
 
@@ -201,12 +225,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) write_state0_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) write_state0_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) writeLatCounter0_0 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter0_1 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter0_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) writeLatCounter0_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) writeLatCounter0_4 <- mkReg(0);
 
     `ifndef REDUCE_PAR_TO_1
     Reg#(MEMSTATE) write_state1_0 <- mkReg(MEMSTATE_idle);
@@ -215,12 +242,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) write_state1_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) write_state1_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) writeLatCounter1_0 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter1_1 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter1_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) writeLatCounter1_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) writeLatCounter1_4 <- mkReg(0);
 
     `ifndef REDUCE_PAR_TO_2
     Reg#(MEMSTATE) write_state2_0 <- mkReg(MEMSTATE_idle);
@@ -229,12 +259,15 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) write_state2_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) write_state2_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) writeLatCounter2_0 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter2_1 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter2_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) writeLatCounter2_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) writeLatCounter2_4 <- mkReg(0);
 
     Reg#(MEMSTATE) write_state3_0 <- mkReg(MEMSTATE_idle);
     Reg#(MEMSTATE) write_state3_1 <- mkReg(MEMSTATE_idle);
@@ -242,12 +275,16 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(MEMSTATE) write_state3_3 <- mkReg(MEMSTATE_idle);
     `endif
+    Reg#(MEMSTATE) write_state3_4 <- mkReg(MEMSTATE_idle);
+
     Reg#(UInt#(32)) writeLatCounter3_0 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter3_1 <- mkReg(0);
     Reg#(UInt#(32)) writeLatCounter3_2 <- mkReg(0);
     `ifndef CENTRE_BUFFER_ONCHIP
     Reg#(UInt#(32)) writeLatCounter3_3 <- mkReg(0);
     `endif
+    Reg#(UInt#(32)) writeLatCounter3_4 <- mkReg(0);
+
     `endif
     `endif    
 
@@ -259,6 +296,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     LFSR#(Bit#(8)) lfsr0_3 <- mkLFSR_8 ;
     `endif
+    LFSR#(Bit#(8)) lfsr0_4 <- mkLFSR_8 ;
 
     `ifndef REDUCE_PAR_TO_1
     LFSR#(Bit#(8)) lfsr1_0 <- mkLFSR_8 ;
@@ -267,6 +305,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     LFSR#(Bit#(8)) lfsr1_3 <- mkLFSR_8 ;
     `endif
+    LFSR#(Bit#(8)) lfsr1_4 <- mkLFSR_8 ;
 
     `ifndef REDUCE_PAR_TO_2
     LFSR#(Bit#(8)) lfsr2_0 <- mkLFSR_8 ;
@@ -275,6 +314,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     LFSR#(Bit#(8)) lfsr2_3 <- mkLFSR_8 ;
     `endif
+    LFSR#(Bit#(8)) lfsr2_4 <- mkLFSR_8 ;
 
     LFSR#(Bit#(8)) lfsr3_0 <- mkLFSR_8 ;
     LFSR#(Bit#(8)) lfsr3_1 <- mkLFSR_8 ;
@@ -282,6 +322,7 @@ module mkTB();
     `ifndef CENTRE_BUFFER_ONCHIP
     LFSR#(Bit#(8)) lfsr3_3 <- mkLFSR_8 ;
     `endif
+    LFSR#(Bit#(8)) lfsr3_4 <- mkLFSR_8 ;
     `endif
     `endif
     `endif
@@ -294,14 +335,14 @@ module mkTB();
 
     // File IO
     
-    RegFile#(TA, TD_in4) cntrIn <- mkRegFileLoad("../VivadoHLS/golden_ref/initial_centres_N128_K4_D3_s0.75_1.hex", 0, `K-1);
-    RegFile#(TA, TD_in1) treeDataIn <- mkRegFileLoad("../VivadoHLS/golden_ref/tree_data_N128_K4_D3_s0.75.hex", 0, 2*`N-1-1-(`P-1));
-    RegFile#(TA, TD_in1) treeAddrIn <- mkRegFileLoad("../VivadoHLS/golden_ref/tree_data_N128_K4_D3_s0.75.hex", 0, 2*`N-1-1-(`P-1));
+    RegFile#(TA, TD_in4) cntrIn <- mkRegFileLoad("initial_centres_N128_K4_D3_s0.75_1.hex", 0, `K-1);
+    RegFile#(TA, TD_in1) treeDataIn <- mkRegFileLoad("tree_data_N128_K4_D3_s0.75.hex", 0, 2*`N-1-1-(`P-1));
+    RegFile#(TA, TD_in1) treeAddrIn <- mkRegFileLoad("tree_data_N128_K4_D3_s0.75.hex", 0, 2*`N-1-1-(`P-1));
     
     /*
-    RegFile#(TA, TD_in4) cntrIn <- mkRegFileLoad("../VivadoHLS/golden_ref/initial_centres_N16384_K128_D3_s0.20_1.hex", 0, `K-1);
-    RegFile#(TA, TD_in1) treeDataIn <- mkRegFileLoad("../VivadoHLS/golden_ref/tree_data_N16384_K128_D3_s0.20.hex", 0, 2*`N-1-1-(`P-1));
-    RegFile#(TA, TD_in1) treeAddrIn <- mkRegFileLoad("../VivadoHLS/golden_ref/tree_data_N16384_K128_D3_s0.20.hex", 0, 2*`N-1-1-(`P-1));
+    RegFile#(TA, TD_in4) cntrIn <- mkRegFileLoad("initial_centres_N16384_K128_D3_s0.20_1.hex", 0, `K-1);
+    RegFile#(TA, TD_in1) treeDataIn <- mkRegFileLoad("tree_data_N16384_K128_D3_s0.20.hex", 0, 2*`N-1-1-(`P-1));
+    RegFile#(TA, TD_in1) treeAddrIn <- mkRegFileLoad("tree_data_N16384_K128_D3_s0.20.hex", 0, 2*`N-1-1-(`P-1));
     */
 
     Reg#(TA) cntrInCounter <- mkReg(0);
@@ -326,6 +367,7 @@ module mkTB();
         `ifndef CENTRE_BUFFER_ONCHIP
         lfsr0_3.seed('hD);
         `endif
+        lfsr0_4.seed('hD);
 
         `ifndef REDUCE_PAR_TO_1
         lfsr1_0.seed('h4);
@@ -334,6 +376,7 @@ module mkTB();
         `ifndef CENTRE_BUFFER_ONCHIP
         lfsr1_3.seed('hE);
         `endif
+        lfsr1_4.seed('hE);
 
         `ifndef REDUCE_PAR_TO_2
         lfsr2_0.seed('h7);
@@ -342,6 +385,7 @@ module mkTB();
         `ifndef CENTRE_BUFFER_ONCHIP
         lfsr2_3.seed('hF);
         `endif
+        lfsr2_4.seed('hF);
 
         lfsr3_0.seed('hA);
         lfsr3_1.seed('hB);
@@ -349,6 +393,7 @@ module mkTB();
         `ifndef CENTRE_BUFFER_ONCHIP
         lfsr3_3.seed('h0);
         `endif
+        lfsr3_4.seed('h0);
         `endif
         `endif
         `endif
@@ -361,7 +406,6 @@ module mkTB();
     rule processing (STATE_processing == state);
 
         filtering_algorithm_top_wrapper.en_i_node_data();
-        //filtering_algorithm_top_wrapper.en_i_node_address();
         filtering_algorithm_top_wrapper.en_root();
         filtering_algorithm_top_wrapper.en_cntr_pos_init();
         filtering_algorithm_top_wrapper.en_clusters_out();
@@ -408,15 +452,6 @@ module mkTB();
         filtering_algorithm_top_wrapper.i_node_data( treeDataIn.sub(treeDataInCounter) );
         $display("[%d] reading i_node_data from FIFO: (%d) val = %x", cycleCounter, treeDataInCounter, treeDataIn.sub(treeDataInCounter));    
     endrule 
-
-    /*
-    rule i_node_address (True);
-        treeAddrInCounter <= treeAddrInCounter + 1;
-        TA addr = truncate(treeAddrIn.sub(treeAddrInCounter) >> (400-32) );
-        filtering_algorithm_top_wrapper.i_node_address( addr);
-        $display("[%d] reading i_node_address from FIFO: (%d) val = %x",cycleCounter, treeAddrInCounter, addr);         
-    endrule 
-    */
 
     rule root (True);
         filtering_algorithm_top_wrapper.root( 1);        
@@ -502,6 +537,16 @@ module mkTB();
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule bus_write0_4 ( True );   
+        write_state0_4 <= MEMSTATE_busy ;
+        writeLatCounter0_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.writeAddr0_4();
+        TD_bus4 d = filtering_algorithm_top_wrapper.writeData0_4();
+        memory0_4.upd(a,d);
+        $display("[%d] write0_4: addr = %x, val = %x",cycleCounter,a,d);
+    endrule 
+
 
     `ifndef REDUCE_PAR_TO_1
 
@@ -560,6 +605,17 @@ module mkTB();
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule bus_write1_4 ( True );   
+        write_state1_4 <= MEMSTATE_busy ;
+        writeLatCounter1_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.writeAddr1_4();
+        TD_bus4 d = filtering_algorithm_top_wrapper.writeData1_4();
+        memory1_4.upd(a,d);
+        $display("[%d] write1_4: addr = %x, val = %x",cycleCounter,a,d);
+    endrule 
+
+
     `ifndef REDUCE_PAR_TO_2
     (* fire_when_enabled *)
     rule bus_write2_0 ( True );   
@@ -616,6 +672,16 @@ module mkTB();
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule bus_write2_4 ( True );   
+        write_state2_4 <= MEMSTATE_busy ;
+        writeLatCounter2_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.writeAddr2_4();
+        TD_bus4 d = filtering_algorithm_top_wrapper.writeData2_4();
+        memory2_4.upd(a,d);
+        $display("[%d] write2_4: addr = %x, val = %x",cycleCounter,a,d);
+    endrule 
+
 
     (* fire_when_enabled *)
     rule bus_write3_0 ( True );   
@@ -671,6 +737,17 @@ module mkTB();
             $display("[%d] leave critical region 3",cycleCounter);
     endrule 
     `endif
+
+    (* fire_when_enabled *)
+    rule bus_write3_4 ( True );   
+        write_state3_4 <= MEMSTATE_busy ;
+        writeLatCounter3_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.writeAddr3_4();
+        TD_bus4 d = filtering_algorithm_top_wrapper.writeData3_4();
+        memory3_4.upd(a,d);
+        $display("[%d] write3_4: addr = %x, val = %x",cycleCounter,a,d);
+    endrule 
+
     `endif   
     `endif 
 
@@ -749,6 +826,24 @@ module mkTB();
     endrule
     `endif
 
+    rule write_lat0_4 ( write_state0_4 == MEMSTATE_busy );
+
+        `ifdef RANDOM_LATENCY
+        UInt#(32) rnd = zeroExtend(unpack(lfsr0_4.value));
+        lfsr0_4.next;
+        `else
+        UInt#(32) rnd = 0;
+        `endif
+        if ( writeLatCounter0_4 == (fromInteger(valueof(WRITE_MEM_LATENCY)) + rnd) )
+        begin
+            write_state0_4 <= MEMSTATE_idle;
+        end
+        else 
+        begin
+            writeLatCounter0_4 <= writeLatCounter0_4 + 1;
+        end
+    endrule
+
 
     rule enwrite0_0 ( write_state0_0 == MEMSTATE_idle );
         filtering_algorithm_top_wrapper.enWrite0_0();
@@ -767,6 +862,10 @@ module mkTB();
         filtering_algorithm_top_wrapper.enWrite0_3();
     endrule
     `endif
+
+    rule enwrite0_4 ( write_state0_4 == MEMSTATE_idle );
+        filtering_algorithm_top_wrapper.enWrite0_4();
+    endrule
 
 
     `ifndef REDUCE_PAR_TO_1    
@@ -844,6 +943,24 @@ module mkTB();
     endrule
     `endif
 
+    rule write_lat1_4 ( write_state1_4 == MEMSTATE_busy );
+
+        `ifdef RANDOM_LATENCY
+        UInt#(32) rnd = zeroExtend(unpack(lfsr1_4.value));
+        lfsr1_4.next;
+        `else
+        UInt#(32) rnd = 0;
+        `endif
+        if ( writeLatCounter1_4 == (fromInteger(valueof(WRITE_MEM_LATENCY)) + rnd) )
+        begin
+            write_state1_4 <= MEMSTATE_idle;
+        end
+        else 
+        begin
+            writeLatCounter1_4 <= writeLatCounter1_4 + 1;
+        end
+    endrule
+
 
     rule enwrite1_0 ( write_state1_0 == MEMSTATE_idle );
         filtering_algorithm_top_wrapper.enWrite1_0();
@@ -862,6 +979,10 @@ module mkTB();
         filtering_algorithm_top_wrapper.enWrite1_3();
     endrule
     `endif
+
+    rule enwrite1_4 ( write_state1_4 == MEMSTATE_idle );
+        filtering_algorithm_top_wrapper.enWrite1_4();
+    endrule
 
     
     `ifndef REDUCE_PAR_TO_2
@@ -939,6 +1060,24 @@ module mkTB();
     endrule
     `endif
 
+    rule write_lat2_4 ( write_state2_4 == MEMSTATE_busy );
+
+        `ifdef RANDOM_LATENCY
+        UInt#(32) rnd = zeroExtend(unpack(lfsr2_4.value));
+        lfsr2_4.next;
+        `else
+        UInt#(32) rnd = 0;
+        `endif
+        if ( writeLatCounter2_4 == (fromInteger(valueof(WRITE_MEM_LATENCY)) + rnd) )
+        begin
+            write_state2_4 <= MEMSTATE_idle;
+        end
+        else 
+        begin
+            writeLatCounter2_4 <= writeLatCounter2_4 + 1;
+        end
+    endrule
+
 
     rule enwrite2_0 ( write_state2_0 == MEMSTATE_idle );
         filtering_algorithm_top_wrapper.enWrite2_0();
@@ -957,6 +1096,10 @@ module mkTB();
         filtering_algorithm_top_wrapper.enWrite2_3();
     endrule
     `endif
+
+    rule enwrite2_4 ( write_state1_4 == MEMSTATE_idle );
+        filtering_algorithm_top_wrapper.enWrite2_4();
+    endrule
 
 
     rule write_lat3_0 ( write_state3_0 == MEMSTATE_busy );
@@ -1033,6 +1176,24 @@ module mkTB();
     endrule
     `endif
 
+    rule write_lat3_4 ( write_state3_4 == MEMSTATE_busy );
+
+        `ifdef RANDOM_LATENCY
+        UInt#(32) rnd = zeroExtend(unpack(lfsr3_4.value));
+        lfsr3_4.next;
+        `else
+        UInt#(32) rnd = 0;
+        `endif
+        if ( writeLatCounter3_4 == (fromInteger(valueof(WRITE_MEM_LATENCY)) + rnd) )
+        begin
+            write_state3_4 <= MEMSTATE_idle;
+        end
+        else 
+        begin
+            writeLatCounter3_4 <= writeLatCounter3_4 + 1;
+        end
+    endrule
+
 
     rule enwrite3_0 ( write_state3_0 == MEMSTATE_idle );
         filtering_algorithm_top_wrapper.enWrite3_0();
@@ -1051,6 +1212,11 @@ module mkTB();
         filtering_algorithm_top_wrapper.enWrite3_3();
     endrule
     `endif
+
+    rule enwrite3_4 ( write_state3_4 == MEMSTATE_idle );
+        filtering_algorithm_top_wrapper.enWrite3_4();
+    endrule
+
     `endif    
     `endif
 
@@ -1099,6 +1265,15 @@ module mkTB();
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule bus_read0_4 (True);    
+        //read_state0_4 <= MEMSTATE_busy;
+        //readLatCounter0_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.readRequest0_4();
+        readAddrFifo0_4.enq(a);
+        $display("[%d] read request 0_4: addr = %d",cycleCounter,a);
+    endrule 
+
 
     `ifndef REDUCE_PAR_TO_1
 
@@ -1139,6 +1314,15 @@ module mkTB();
         $display("[%d] read request 1_3: addr = %d",cycleCounter,a);
     endrule 
     `endif
+
+    (* fire_when_enabled *)
+    rule bus_read1_4 (True);    
+        //read_state1_4 <= MEMSTATE_busy;
+        //readLatCounter1_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.readRequest1_4();
+        readAddrFifo1_4.enq(a);
+        $display("[%d] read request 1_4: addr = %d",cycleCounter,a);
+    endrule 
 
 
     `ifndef REDUCE_PAR_TO_2
@@ -1181,6 +1365,15 @@ module mkTB();
     endrule 
     `endif
 
+    (* fire_when_enabled *)
+    rule bus_read2_4 (True);    
+        //read_state2_4 <= MEMSTATE_busy;
+        //readLatCounter2_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.readRequest2_4();
+        readAddrFifo2_4.enq(a);
+        $display("[%d] read request 2_4: addr = %d",cycleCounter,a);
+    endrule 
+
 
     (* fire_when_enabled *)
     rule bus_read3_0 (True);    
@@ -1219,6 +1412,16 @@ module mkTB();
         $display("[%d] read request 3_3: addr = %d",cycleCounter,a);
     endrule 
     `endif
+
+    (* fire_when_enabled *)
+    rule bus_read3_4 (True);    
+        //read_state3_4 <= MEMSTATE_busy;
+        //readLatCounter3_4 <= 0;
+        TA a = filtering_algorithm_top_wrapper.readRequest3_4();
+        readAddrFifo3_4.enq(a);
+        $display("[%d] read request 3_4: addr = %d",cycleCounter,a);
+    endrule 
+
     `endif
     `endif
 
@@ -1287,6 +1490,21 @@ module mkTB();
     endrule
     `endif
 
+    rule read_lat0_4 ( readAddrFifo0_4.notEmpty  );
+        if ( readLatCounter0_4 == fromInteger(valueof(READ_MEM_LATENCY)) )
+        begin
+            filtering_algorithm_top_wrapper.readData0_4(memory0_4.sub(readAddrFifo0_4.first));
+            $display("[%d] bus0_4 read response: addr = %x, val = %x",cycleCounter,readAddrFifo0_4.first,memory0_4.sub(readAddrFifo0_4.first));
+            readAddrFifo0_4.deq;
+            readLatCounter0_4 <= 0;
+        end
+        else 
+        begin
+            readLatCounter0_4 <= readLatCounter0_4 + 1;
+        end
+        //$display("lat counter: %d",readLatCounter0_4);
+    endrule
+
 
     `ifndef REDUCE_PAR_TO_1
 
@@ -1354,6 +1572,21 @@ module mkTB();
     endrule
     `endif
 
+    rule read_lat1_4 ( readAddrFifo1_4.notEmpty  );
+        if ( readLatCounter1_4 == fromInteger(valueof(READ_MEM_LATENCY)) )
+        begin
+            filtering_algorithm_top_wrapper.readData1_4(memory1_4.sub(readAddrFifo1_4.first));
+            $display("[%d] bus1_4 read response: addr = %x, val = %x",cycleCounter,readAddrFifo1_4.first,memory1_4.sub(readAddrFifo1_4.first));
+            readAddrFifo1_4.deq;
+            readLatCounter1_4 <= 0;
+        end
+        else 
+        begin
+            readLatCounter1_4 <= readLatCounter1_4 + 1;
+        end
+        //$display("lat counter: %d",readLatCounter1_4);
+    endrule
+
 
     `ifndef REDUCE_PAR_TO_2
 
@@ -1420,6 +1653,20 @@ module mkTB();
     endrule
     `endif
 
+    rule read_lat2_4 ( readAddrFifo2_4.notEmpty  );
+        if ( readLatCounter2_4 == fromInteger(valueof(READ_MEM_LATENCY)) )
+        begin
+            filtering_algorithm_top_wrapper.readData2_4(memory2_4.sub(readAddrFifo2_4.first));
+            $display("[%d] bus2_4 read response: addr = %x, val = %x",cycleCounter,readAddrFifo2_4.first,memory2_4.sub(readAddrFifo2_4.first));
+            readAddrFifo2_4.deq;
+            readLatCounter2_4 <= 0;
+        end
+        else 
+        begin
+            readLatCounter2_4 <= readLatCounter2_4 + 1;
+        end
+        //$display("lat counter: %d",readLatCounter2_4);
+    endrule
 
 
     rule read_lat3_0 ( readAddrFifo3_0.notEmpty  );
@@ -1484,6 +1731,22 @@ module mkTB();
         //$display("lat counter: %d",readLatCounter3_3);
     endrule
     `endif
+
+    rule read_lat3_4 ( readAddrFifo3_4.notEmpty  );
+        if ( readLatCounter3_4 == fromInteger(valueof(READ_MEM_LATENCY)) )
+        begin
+            filtering_algorithm_top_wrapper.readData3_4(memory3_4.sub(readAddrFifo3_4.first));
+            $display("[%d] bus3_4 read response: addr = %x, val = %x",cycleCounter,readAddrFifo3_4.first,memory3_4.sub(readAddrFifo3_4.first));
+            readAddrFifo3_4.deq;
+            readLatCounter3_4 <= 0;
+        end
+        else 
+        begin
+            readLatCounter3_4 <= readLatCounter3_4 + 1;
+        end
+        //$display("lat counter: %d",readLatCounter3_4);
+    endrule
+
     `endif
     `endif
 

@@ -450,10 +450,6 @@ template<uint par> void filter (node_pointer root,
     // dynamic memory allocation
     centre_list_pointer centre_next_free_location = 1;
 
-    // init dynamic memory allocator for centre lists scratchpad heap
-    //init_allocator<centre_list_pointer>(freelist_bus_1, &centre_next_free_location, CENTRESET_HEAP_SIZE-2);
-
-
     // stack pointer
     uint stack_pointer;
     init_stack(&stack_pointer);
