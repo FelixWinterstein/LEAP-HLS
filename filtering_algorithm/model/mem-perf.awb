@@ -1,0 +1,34 @@
+%name Scratchpad Memory Performance Test System
+%desc Scratchpad Memory Performance Test System
+
+%attributes scratchpad_test test
+
+%provides mem_perf_tester
+
+%public mem-perf.bsv
+%public mem-perf.dic
+
+%param --global MEM_TEST_PRIVATE_CACHES 1 "Enable (1) / disable (0) private scratchpad caches"
+
+%param --global CACHE_ENTRIES00 1024 "Number of cache entries for port 0"
+%param --global CACHE_ENTRIES10 1024 "Number of cache entries for port 1"
+%param --global CACHE_ENTRIES20 1024 "Number of cache entries for port 2"
+%param --global CACHE_ENTRIES30 1024 "Number of cache entries for port 3"
+
+%param --global CACHE_ENTRIES01 1024 "Number of cache entries for port 0"
+%param --global CACHE_ENTRIES11 1024 "Number of cache entries for port 1"
+%param --global CACHE_ENTRIES21 1024 "Number of cache entries for port 2"
+%param --global CACHE_ENTRIES31 1024 "Number of cache entries for port 3"
+
+%param --global CACHE_ENTRIES02 1024 "Number of cache entries for port 0"
+%param --global CACHE_ENTRIES12 1024 "Number of cache entries for port 1"
+%param --global CACHE_ENTRIES22 1024 "Number of cache entries for port 2"
+%param --global CACHE_ENTRIES32 1024 "Number of cache entries for port 3"
+
+%param --global CACHE_ENTRIES03 1024 "Number of cache entries for port 0"
+%param --global CACHE_ENTRIES13 1024 "Number of cache entries for port 1"
+%param --global CACHE_ENTRIES23 1024 "Number of cache entries for port 2"
+%param --global CACHE_ENTRIES33 1024 "Number of cache entries for port 3"
+
+%param SYNTH_BOUNDARY mkMemTester "name of synthesis boundary"
+

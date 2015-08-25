@@ -1,0 +1,64 @@
+%name Mem perf common types
+%desc Mem perf common types
+
+%attributes scratchpad_test test
+
+%provides mem_perf_common
+
+%public mem-perf-common.bsv
+%public privateSPInterface.bsv
+%public privateSPInterfaceMmap.bsv
+%public coherentSPInterface.bsv
+
+%public MyIP.bsv
+%public bus_bridge.v
+%public fifo.v
+%public filter_0u_s_centre_freelist_V.v
+%public filter_0u_s.v
+%public filter_1u_s.v
+%public filter_2u_s.v
+%public filter_3u_s.v
+%public filtering_algorithm_top_centre_positions_0_value_V.v
+%public filtering_algorithm_top_filt_centres_out_reduced.v
+%public filtering_algorithm_top_mul_16s_16s_32_2.v
+%public filtering_algorithm_top_mul_17s_17s_36_2.v
+%public filtering_algorithm_top_mul_18s_16s_32_2.v
+%public filtering_algorithm_top_mul_18s_18s_32_2.v
+%public filtering_algorithm_top_mul_18s_18s_36_2.v
+%public filtering_algorithm_top_sdiv_32ns_32ns_32_35.v
+%public filtering_algorithm_top.v
+%public filtering_algorithm_top_wrapper.v
+%public clusters_out_N128_K4_D3_s0.75.hex
+%public clusters_out_N262144_K128_D3_s0.20.hex
+%public clusters_out_N32768_K256_D3_s0.15.hex
+%public clusters_out_N8192_K128_D3_s0.20.hex
+%public distortion_out_N128_K4_D3_s0.75.hex
+%public distortion_out_N262144_K128_D3_s0.20.hex
+%public distortion_out_N32768_K256_D3_s0.15.hex
+%public distortion_out_N8192_K128_D3_s0.20.hex
+%public initial_centres_N128_K4_D3_s0.75_1.hex
+%public initial_centres_N262144_K128_D3_s0.20_1.hex
+%public initial_centres_N32768_K256_D3_s0.15_1.hex
+%public initial_centres_N8192_K128_D3_s0.20_1.hex
+%public tree_data_N128_K4_D3_s0.75.hex
+%public tree_data_N262144_K128_D3_s0.20.hex
+%public tree_data_N32768_K256_D3_s0.15.hex
+%public tree_data_N8192_K128_D3_s0.20.hex
+%public tree_data_N128_K4_D3_s0.75.dat
+%public tree_data_N262144_K128_D3_s0.20.dat
+%public tree_data_N32768_K256_D3_s0.15.dat
+%public tree_data_N8192_K128_D3_s0.20.dat
+
+
+%param MEM_TEST_ALT 1  "Should we test the second scratchpad"
+%param MEM_WIDTH 64  "Width of scratchpads"
+%param MEM_ADDR 24 "Size of scratchpad address space"
+%param MEM_TEST_VERBOSE 1  "Should we test the second scratchpad"
+%param MEM_TEST_SHIFT 30  "How large should the private region address offset be?"
+
+%param --dynamic CLUSTERING_ITERATIONS 1 "Number of iterations"
+
+
+
+
+
