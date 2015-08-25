@@ -9,8 +9,8 @@ select yn in "Yes" "No"; do
         Yes )
 	echo "copying sources from ../VivadoHLS/filtering_algorithm_extmem/solution1/impl/verilog/.";
 	cp ../VivadoHLS/filtering_algorithm_extmem/solution1/impl/verilog/*.v .;
-	cp ../VivadoHLS/golden_ref/*.hex .;
-	cp ../VivadoHLS/golden_ref/*.dat .;
+	cp ../VivadoHLS/input_data/*.hex .;
+	cp ../VivadoHLS/input_data/*.dat .;
 	break;;
         No ) 
 	echo "copying sources from golden_ref/."; 

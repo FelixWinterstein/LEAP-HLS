@@ -12,9 +12,9 @@
 #ifndef BUILD_KDTREE_H
 #define BUILD_KDTREE_H
 
-#include "filtering_algorithm_util.h"
-#include "stack.h"
-#include "dyn_mem_alloc.h"
+#include "../design_files/filtering_algorithm_util.h"
+#include "../design_files/stack.h"
+#include "../design_files/dyn_mem_alloc.h"
 
 
 //file IO

@@ -17,7 +17,7 @@
 
 
 template <class address_type>
-address_type malloc(address_type* flist, address_type* next_free_location)
+address_type malloc(volatile address_type* flist, address_type* next_free_location)
 {
     #pragma AP inline
     address_type address = *next_free_location;
@@ -27,7 +27,7 @@ address_type malloc(address_type* flist, address_type* next_free_location)
 }
 
 template <class address_type>
-void free(address_type* flist, address_type* next_free_location, address_type address)
+void free(volatile address_type* flist, address_type* next_free_location, address_type address)
 {
     #pragma AP inline
     flist[(uint)address] = *next_free_location;
@@ -35,7 +35,7 @@ void free(address_type* flist, address_type* next_free_location, address_type ad
 }
 
 template <class address_type>
-void init_allocator(address_type* flist, address_type* next_free_location, const address_type heapsize)
+void init_allocator(volatile address_type* flist, address_type* next_free_location, const address_type heapsize)
 {
     #pragma AP inline
     init_allocator_loop: for (address_type i=0; i<=heapsize; i++) {

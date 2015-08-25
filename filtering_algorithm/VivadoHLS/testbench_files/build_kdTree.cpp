@@ -28,7 +28,7 @@ void make_data_points_file_name(char *result, uint n, uint k, uint d, double std
 	if (!hex)
 		sprintf(result,"data_points_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
 	else
-		sprintf(result,"../../../../golden_ref/data_points_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/data_points_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
 }
 
 void make_initial_centres_file_name(char *result, uint n, uint k, uint d, double std_dev, uint index, bool hex)
@@ -36,7 +36,7 @@ void make_initial_centres_file_name(char *result, uint n, uint k, uint d, double
 	if (!hex)
 		sprintf(result,"initial_centres_N%d_K%d_D%d_s%.2f_%d.mat",n,k,d,std_dev,index);
 	else
-		sprintf(result,"../../../../golden_ref/initial_centres_N%d_K%d_D%d_s%.2f_%d.hex",n,k,d,std_dev,index);
+		sprintf(result,"../../../../input_data/initial_centres_N%d_K%d_D%d_s%.2f_%d.hex",n,k,d,std_dev,index);
 }
 
 
@@ -44,21 +44,21 @@ void make_initial_centres_file_name(char *result, uint n, uint k, uint d, double
 void make_tree_data_file_name(char *result, uint n, uint k, uint d, double std_dev, bool hex)
 {
 	if (!hex)
-		sprintf(result,"../../../../golden_ref/tree_data_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/tree_data_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
 	else
-		sprintf(result,"../../../../golden_ref/tree_data_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/tree_data_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
 }
 
 
 void make_tree_data_file_name_bin(char *result, uint n, uint k, uint d, double std_dev)
 {
-	sprintf(result,"../../../../golden_ref/tree_data_N%d_K%d_D%d_s%.2f.dat",n,k,d,std_dev);
+	sprintf(result,"../../../../input_data/tree_data_N%d_K%d_D%d_s%.2f.dat",n,k,d,std_dev);
 	printf("Writing to %s\n",result);
 }
 
 void make_tree_addr_file_name_bin(char *result, uint n, uint k, uint d, double std_dev)
 {
-	sprintf(result,"../../../../golden_ref/tree_data_N%d_K%d_D%d_s%.2f.dat",n,k,d,std_dev);
+	sprintf(result,"../../../../input_data/tree_data_N%d_K%d_D%d_s%.2f.dat",n,k,d,std_dev);
 	printf("Writing to %s\n",result);
 }
 

@@ -411,6 +411,7 @@ template<uint par> void filter (node_pointer root,
 						 volatile centre_index_type *ddr_bus_1, // centres
 						 volatile stack_record_type *ddr_bus_2, // stack
 						 volatile bus_type3 *ddr_bus_3, // centreRecords
+						 volatile centre_list_pointer *freelist_bus_1, // freelist for centres
 						 centre_index_type k,
 						 data_type (*centre_positions)[K],
 						 centre_type (*centres_out)[K],
@@ -447,11 +448,10 @@ template<uint par> void filter (node_pointer root,
 
 
     // dynamic memory allocation
-    centre_list_pointer centre_freelist[CENTRESET_HEAP_SIZE];
-    centre_list_pointer centre_next_free_location;
+    centre_list_pointer centre_next_free_location = 1;
 
     // init dynamic memory allocator for centre lists scratchpad heap
-    init_allocator<centre_list_pointer>(centre_freelist, &centre_next_free_location, CENTRESET_HEAP_SIZE-2);
+    //init_allocator<centre_list_pointer>(freelist_bus_1, &centre_next_free_location, CENTRESET_HEAP_SIZE-2);
 
 
     // stack pointer
@@ -462,7 +462,7 @@ template<uint par> void filter (node_pointer root,
     centre_list_pointer centre_list_idx;
 
     // new centre_list_idx
-    centre_list_idx = malloc<centre_list_pointer>(centre_freelist, &centre_next_free_location);
+    centre_list_idx = malloc<centre_list_pointer>(freelist_bus_1, &centre_next_free_location);
 
 	// write the malloc'ed data set to the first valid address
     init_centre_list_loop: for(centre_index_type i=0; i<=k; i++) {
@@ -530,7 +530,7 @@ template<uint par> void filter (node_pointer root,
 		#endif
 
 
-        centre_set_out = malloc<centre_list_pointer>(centre_freelist, &centre_next_free_location);
+        centre_set_out = malloc<centre_list_pointer>(freelist_bus_1, &centre_next_free_location);
 		#ifndef __SYNTHESIS__
 		allocated_centre_sets++;
 		if (max_allocated_centre_sets < allocated_centre_sets)
@@ -566,7 +566,7 @@ template<uint par> void filter (node_pointer root,
         // free list that has been read twice
         if (rdy_for_deletion == true) {
         	// delete centre_set_in
-            free<centre_list_pointer>(centre_freelist, &centre_next_free_location, centre_set_in);
+            free<centre_list_pointer>(freelist_bus_1, &centre_next_free_location, centre_set_in);
 			#ifndef __SYNTHESIS__
 			allocated_centre_sets--;
 			#endif
@@ -576,7 +576,7 @@ template<uint par> void filter (node_pointer root,
         // final decision whether sub-tree will be pruned
         if ( tmp_deadend == true ) {
 			// delete centre_set_out
-        	free<centre_list_pointer>(centre_freelist, &centre_next_free_location, centre_set_out);
+        	free<centre_list_pointer>(freelist_bus_1, &centre_next_free_location, centre_set_out);
 			#ifndef __SYNTHESIS__
 			allocated_centre_sets--;
 			#endif
@@ -714,6 +714,10 @@ void filtering_algorithm_top(   volatile kdTree_type *i_node_data,
 								volatile stack_record_type *ddr_bus_3_2,
 								volatile bus_type3 *ddr_bus_3_3,
 								volatile bool *access_critical_region3,
+								volatile centre_list_pointer *freelist_bus_0_1,
+								volatile centre_list_pointer *freelist_bus_1_1,
+								volatile centre_list_pointer *freelist_bus_2_1,
+								volatile centre_list_pointer *freelist_bus_3_1,
                                 volatile data_type *cntr_pos_init,
                                 node_pointer n,
                                 centre_index_type k,
@@ -742,6 +746,12 @@ void filtering_algorithm_top(   volatile kdTree_type *i_node_data,
 	#pragma HLS INTERFACE ap_bus port=ddr_bus_3_1
 	#pragma HLS INTERFACE ap_bus port=ddr_bus_3_2
 	#pragma HLS INTERFACE ap_bus port=ddr_bus_3_3
+
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_0_1
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_1_1
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_2_1
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_3_1
+
 
     // set the interface properties
     #pragma HLS interface ap_none register port=n
@@ -807,15 +817,15 @@ void filtering_algorithm_top(   volatile kdTree_type *i_node_data,
         }
 
         // run the clustering kernels (tree traversal)
-        filter<0>(root_array[0], ddr_bus_0_0, ddr_bus_0_1, ddr_bus_0_2, ddr_bus_0_3, k, centre_positions, filt_centres_out, access_critical_region0);
+        filter<0>(root_array[0], ddr_bus_0_0, ddr_bus_0_1, ddr_bus_0_2, ddr_bus_0_3, freelist_bus_0_1, k, centre_positions, filt_centres_out, access_critical_region0);
 		#if P>1
-		filter<1>(root_array[1], ddr_bus_1_0, ddr_bus_1_1, ddr_bus_1_2, ddr_bus_1_3, k, centre_positions, filt_centres_out, access_critical_region1);
+		filter<1>(root_array[1], ddr_bus_1_0, ddr_bus_1_1, ddr_bus_1_2, ddr_bus_1_3, freelist_bus_1_1, k, centre_positions, filt_centres_out, access_critical_region1);
 		#endif
 		#if P>2
-        filter<2>(root_array[2], ddr_bus_2_0, ddr_bus_2_1, ddr_bus_2_2, ddr_bus_2_3, k, centre_positions, filt_centres_out, access_critical_region2);
+        filter<2>(root_array[2], ddr_bus_2_0, ddr_bus_2_1, ddr_bus_2_2, ddr_bus_2_3, freelist_bus_2_1, k, centre_positions, filt_centres_out, access_critical_region2);
 		#endif
 		#if P>3
-        filter<3>(root_array[3], ddr_bus_3_0, ddr_bus_3_1, ddr_bus_3_2, ddr_bus_3_3, k, centre_positions, filt_centres_out, access_critical_region3);
+        filter<3>(root_array[3], ddr_bus_3_0, ddr_bus_3_1, ddr_bus_3_2, ddr_bus_3_3, freelist_bus_3_1, k, centre_positions, filt_centres_out, access_critical_region3);
 		#endif
 
 

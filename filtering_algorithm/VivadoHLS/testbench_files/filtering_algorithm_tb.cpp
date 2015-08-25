@@ -14,8 +14,8 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "filtering_algorithm_top.h"
-#include "filtering_algorithm_util.h"
+#include "../design_files/filtering_algorithm_top.h"
+#include "../design_files/filtering_algorithm_util.h"
 #include "build_kdTree.h"
 
 
@@ -44,6 +44,11 @@ kdTree_type heap_3_0[TREE_HEAP_SIZE_SIM];
 centre_index_type heap_3_1[TREE_HEAP_SIZE_SIM];
 stack_record_type heap_3_2[TREE_HEAP_SIZE_SIM];
 
+centre_list_pointer freelist_bus_0_1[TREE_HEAP_SIZE_SIM];
+centre_list_pointer freelist_bus_1_1[TREE_HEAP_SIZE_SIM];
+centre_list_pointer freelist_bus_2_1[TREE_HEAP_SIZE_SIM];
+centre_list_pointer freelist_bus_3_1[TREE_HEAP_SIZE_SIM];
+
 // we only need a small address space for the shared memory region
 bus_type3 heap_coh_3[5*K];
 
@@ -56,17 +61,66 @@ bool access_critical_region3;
 void make_clusters_out_file_name(char *result, uint n, uint k, uint d, double std_dev, bool hex)
 {
 	if (!hex)
-		sprintf(result,"../../../../golden_ref/clusters_out_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/clusters_out_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
 	else
-		sprintf(result,"../../../../golden_ref/clusters_out_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/clusters_out_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
 }
 
 void make_distortion_out_file_name(char *result, uint n, uint k, uint d, double std_dev, bool hex)
 {
 	if (!hex)
-		sprintf(result,"../../../../golden_ref/distortion_out_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/distortion_out_N%d_K%d_D%d_s%.2f.mat",n,k,d,std_dev);
 	else
-		sprintf(result,"../../../../golden_ref/distortion_out_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
+		sprintf(result,"../../../../input_data/distortion_out_N%d_K%d_D%d_s%.2f.hex",n,k,d,std_dev);
+}
+
+
+template <class word_type>
+void write_word_to_file (FILE *fp,word_type v)
+{
+	word_type v_tmp = v;
+
+	for (uint i=0; i<sizeof(word_type); i++) {
+		unsigned char c = (unsigned char) v_tmp & ((1<<(sizeof(char)*8))-1);
+		putc(c, fp);
+		v_tmp = v_tmp >> (sizeof(char)*8);
+	}
+}
+
+
+// write a binary initialization file for the freelist scratchpad memories (used by LEAP)
+bool write_freelist_init_file(centre_list_pointer n)
+{
+    FILE *fp;
+    FILE *fp_hex;
+
+    char filename[256];
+    sprintf(filename,"../../../../input_data/freelist_initialization.dat");
+
+    char filename_hex[256];
+    sprintf(filename_hex,"../../../../input_data/freelist_initialization.hex");
+
+    fp=fopen(filename, "wb");
+    fp_hex=fopen(filename_hex, "w");
+
+    if ((fp == NULL) || (fp_hex==NULL))
+		return false;
+
+	for (centre_list_pointer i=0; i<n; i++) {
+		write_word_to_file<centre_list_pointer>(fp,i+1);
+	}
+
+	for (centre_list_pointer i=0; i<n; i++) {
+
+		char intStr[256];
+		sprintf(intStr,"%08x",i.VAL+1);
+    	fprintf(fp_hex,"%s\n",intStr);
+    }
+
+    fclose(fp);
+    fclose(fp_hex);
+
+    return true;
 }
 
 // recursively split the kd-tree into P sub-trees (P is parallelism degree)
@@ -143,6 +197,19 @@ int main()
 
     write_initial_centres(n,k,std_dev,initial_centre_positions);
 
+    // initialize the freelists used by the dynamic memory allocator (only in C simulation)
+	for (centre_list_pointer i=0; i<1024; i++) {
+		freelist_bus_0_1[i] = i+1;
+		freelist_bus_1_1[i] = i+1;
+		freelist_bus_2_1[i] = i+1;
+		freelist_bus_3_1[i] = i+1;
+	}
+
+	// write a freelist initialization file used by the dynamic memory allocator (in hardware)
+	if (!write_freelist_init_file(1024)) // set this number to the maximum number of heap-allocated  data records
+		return 1;
+
+
     // compute axis-aligned hyper rectangle enclosing all data points
     data_type bnd_lo, bnd_hi;
     uint index = 0;
@@ -194,6 +261,10 @@ int main()
 							NULL,
 							#endif
 							&access_critical_region3,
+							freelist_bus_0_1,
+							freelist_bus_1_1,
+							freelist_bus_2_1,
+							freelist_bus_3_1,
     						initial_centre_positions, 2*n-1-1-(P-1), k-1, l, root, distortion_out, clusters_out);
 
 
