@@ -8,6 +8,10 @@ This repository contains code in support of the tutorial "The LEAP Run-time Syst
 
 Current HLS systems typically provide very simple FPGA-side memory and I/O sub-systems. HLS users commonly face the problem that the application data do not fit in the FPGA on-chip memory and connecting the HLS kernel with an external memory is an extensive, time-consuming task. The LEAP operating environment provides composable components and services for connecting FPGA kernels to external memory sub-systems through high-performance interfaces, and for building hybrid implementations combining FPGAs and software. These code examples show how to integrate Vivado HLS designs into the LEAP environment and describe the interfaces through which the HLS-generated kernels are supported by cache-based, application-specific memory hierarchies.
 
+We provide two code examples:
+  * Merger: A light-weight example using only private memory regions
+  * The filtering algorithm: A more complicated implementation of K-means clustering using private and shared memory regions as well as LEAP's lock synchronization service
+
 Instructions for building the applications are in the README file in each folder. To build and run the examples, the following tools/ software packages must be installed:
 
   * The LEAP Run-time System as described [here](https://github.com/LEAP-FPGA/leap-documentation/wiki). The code examples have been tested with LEAP release version 15.02 running on a Ubuntu 12.04 "Precise" machine.
