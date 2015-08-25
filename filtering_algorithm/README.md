@@ -12,7 +12,7 @@ Steps to build it:
 
 2) Change into `generated_verilog/.` and run `./reload_source_files.sh`.
 
-3) Change into `testbench/.` and run `make` in order to test whether the HLS design can be imported into a *BVI wrapper* and simulated using *iverilog*.
+3) Change into `testbench/.` and run `make` in order to test whether the HLS design can be imported into a *BVI wrapper* and simulated using *iverilog*. When the HLS core interface or the wrapper files are modified, it is recommended to use the testbench to check quickly that everything works as expected before building the actual LEAP simulation model (which may take up to 15 minutes). Note that the testbench does not model shared memory correctly.
 
 ### Building a hardware simulation model
 
