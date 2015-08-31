@@ -1,0 +1,29 @@
+%name Mem perf common types
+%desc Mem perf common types
+
+%attributes scratchpad_test test
+
+%provides mem_perf_common
+
+%public mem-perf-common.bsv
+%public privateSPInterface.bsv
+%public privateSPInterfaceMmap.bsv
+
+%public MyIP.bsv
+%public hello_world_buffer_1.v
+%public hello_world_mul_32s_32s_32_7.v
+%public hello_world.v
+%public initialization.dat
+%public initialization.hex
+
+
+
+%param MEM_TEST_ALT 1  "Should we test the second scratchpad"
+%param MEM_WIDTH 32  "Width of scratchpads"
+%param MEM_ADDR 32 "Size of scratchpad address space"
+%param MEM_TEST_VERBOSE 1  "Should we test the second scratchpad"
+%param MEM_TEST_SHIFT 24  "How large should the private region address offset be?"
+
+
+
+
