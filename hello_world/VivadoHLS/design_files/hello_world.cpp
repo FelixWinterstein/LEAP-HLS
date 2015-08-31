@@ -1,4 +1,12 @@
-
+/**********************************************************************
+* Felix Winterstein, Imperial College London
+*
+* File: hello_world.cpp
+*
+* Revision 1.01
+* Additional Comments: distributed under a BSD license, see LICENSE.txt
+*
+**********************************************************************/
 
 #include "hello_world.h"
 
