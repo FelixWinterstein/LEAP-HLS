@@ -59,6 +59,8 @@ module [CONNECTED_MODULE] mkPrivateSPInterfaceMmap#(HLS_AP_BUS_IFC#(Bit#(t_data_
     // mem request fifo
     FIFOF#(Tuple3#(Bit#(t_addr_sz), Bit#(t_data_sz), Bool)) reqFifo <- mkSizedFIFOF(16);
 
+    // mem response fifo
+    FIFOF#(Bit#(t_data_sz)) readRspFifo <- mkSizedFIFOF(16);
 
     `ifdef PRIV_VERBOSE
     FIFO#(Bit#(32)) readStartCycle <- mkSizedFIFO(16);
@@ -82,7 +84,10 @@ module [CONNECTED_MODULE] mkPrivateSPInterfaceMmap#(HLS_AP_BUS_IFC#(Bit#(t_data_
         bus.reqNotFull();
     endrule
 
-
+    (* fire_when_enabled *)
+    rule rspNotEmpty ( readRspFifo.notEmpty );
+        bus.rspNotEmpty();
+    endrule   
 
     // ====================================================================
     //
@@ -152,16 +157,24 @@ module [CONNECTED_MODULE] mkPrivateSPInterfaceMmap#(HLS_AP_BUS_IFC#(Bit#(t_data_
 
 
     // receive read response
-    rule memReadSPRespResp (True);
+    rule memReadSPRespFifo (True);
 
         Bit#(t_data_sz) resp <- memory.readRsp();
-        bus.readRsp(resp);
+        readRspFifo.enq(resp);        
 
         `ifdef PRIV_VERBOSE
         $display("[%d] bus%d read response: addr = %x, data = %d, latency = %d",cycle,logID,readAddrFifo.first,resp,cycle-readStartCycle.first);
         readStartCycle.deq;
         readAddrFifo.deq;
         `endif
+    endrule
+
+    // forward read response to core
+    rule memReadSPRespResp ( True ); // readRspFifo.notEmpty ??
+
+        bus.readRsp(readRspFifo.first);
+        readRspFifo.deq;
+
     endrule
 
 

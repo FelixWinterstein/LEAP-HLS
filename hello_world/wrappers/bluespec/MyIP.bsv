@@ -22,9 +22,11 @@ interface MY_IP_IFC#(type tpd, type tpa);
     // bus io
     // inputs
     method Action bus0ReqNotFull();
+    method Action bus0RspNotEmpty();
     method Action bus0ReadRsp(tpd bus0_datain);
 
     method Action bus1ReqNotFull();
+    method Action bus1RspNotEmpty();
     method Action bus1ReadRsp(tpd bus1_datain); 
  
     // outputs
@@ -63,10 +65,12 @@ import "BVI" hello_world = module mkMyIP(
     // bus io
     // inputs
     method bus0ReqNotFull() enable(bus0_req_full_n);
-    method bus0ReadRsp(bus0_datain) enable(bus0_rsp_empty_n);       
+    method bus0RspNotEmpty() enable(bus0_rsp_empty_n);
+    method bus0ReadRsp(bus0_datain) enable( (*inhigh*) V_UNUSED0) ready(bus0_rsp_read);      
 
     method bus1ReqNotFull() enable(bus1_req_full_n);
-    method bus1ReadRsp(bus1_datain) enable(bus1_rsp_empty_n); 
+    method bus1RspNotEmpty() enable(bus1_rsp_empty_n);
+    method bus1ReadRsp(bus1_datain) enable( (*inhigh*) V_UNUSED1) ready(bus1_rsp_read);
 
     // outputs
     method bus0_address bus0ReqAddr() ready(bus0_req_write);
@@ -92,12 +96,14 @@ import "BVI" hello_world = module mkMyIP(
                 ipIdle,
                 ipDone,
                 bus0ReqNotFull,
+                bus0RspNotEmpty,
                 bus0ReadRsp,
                 bus0ReqAddr,
                 bus0ReqSize,
                 bus0WriteData,
                 bus0WriteReqEn,
                 bus1ReqNotFull,
+                bus1RspNotEmpty,    
                 bus1ReadRsp,
                 bus1ReqAddr,
                 bus1ReqSize,
@@ -109,12 +115,14 @@ import "BVI" hello_world = module mkMyIP(
                 ipIdle,
                 ipDone,
                 bus0ReqNotFull,
+                bus0RspNotEmpty,
                 bus0ReadRsp,
                 bus0ReqAddr,
                 bus0ReqSize,
                 bus0WriteData,
                 bus0WriteReqEn,
                 bus1ReqNotFull,
+                bus1RspNotEmpty,
                 bus1ReadRsp,
                 bus1ReqAddr,
                 bus1ReqSize,
@@ -128,6 +136,7 @@ endmodule
 // Vivado HLS ap_bus interface
 interface HLS_AP_BUS_IFC#(type tpd, type tpa);
     method Action reqNotFull();
+    method Action rspNotEmpty();
     method Action readRsp( tpd resp);
     method tpa reqAddr();
     method tpa reqSize();
@@ -159,6 +168,9 @@ module mkMyIPWithMemBus (
             method Action reqNotFull();
                 core.bus0ReqNotFull();
             endmethod
+            method Action rspNotEmpty();
+                core.bus0RspNotEmpty();
+            endmethod
             method Action readRsp(Bit#(n0) resp);
                 core.bus0ReadRsp(resp);
             endmethod
@@ -172,6 +184,9 @@ module mkMyIPWithMemBus (
         interface HLS_AP_BUS_IFC#( Bit#(n0), Bit#(n1) );
             method Action reqNotFull();
                 core.bus1ReqNotFull();
+            endmethod
+            method Action rspNotEmpty();
+                core.bus1RspNotEmpty();
             endmethod
             method Action readRsp(Bit#(n0) resp);
                 core.bus1ReadRsp(resp);

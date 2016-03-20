@@ -33,8 +33,12 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     // mem request fifo
     FIFOF#(Tuple3#(Bit#(t_addr_sz), Bit#(t_data_sz), Bool)) reqFifo <- mkSizedFIFOF(16);
 
+    // mem response fifo
+    FIFOF#(Bit#(t_data_sz)) readRspFifo <- mkSizedFIFOF(16);
+
     // simulate memory latency
-    Reg#(UInt#(32)) latCounter <- mkReg(0);
+    Reg#(UInt#(32)) writeLatCounter <- mkReg(0);
+    Reg#(UInt#(32)) readLatCounter <- mkReg(0);
 
 
     // stats
@@ -57,6 +61,11 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
         bus.reqNotFull();
     endrule
 
+    (* fire_when_enabled *)
+    rule rspNotEmpty ( readRspFifo.notEmpty );
+        bus.rspNotEmpty();
+    endrule    
+
 
     // ====================================================================
     //
@@ -64,15 +73,15 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     //
     // ====================================================================/
 
-    (* fire_when_enabled *) 
-    (* mutually_exclusive = "writeReq, memLat" *)
+    (* fire_when_enabled *)
+    (* mutually_exclusive = "writeReq, memLatWrite" *) 
     rule writeReq ( bus.writeReqEn );
 
         Bit#(t_addr_sz) a = bus.reqAddr;
         Bit#(t_data_sz) d = bus.writeData;
         reqFifo.enq(tuple3(a,d,True));
 
-        latCounter <= 0;
+        writeLatCounter <= 0;
 
         `ifdef PRIV_VERBOSE
         writeStartCycle.enq(cycle);
@@ -81,8 +90,8 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     endrule
 
 
-    (* descending_urgency = "memWriteSPResp, memLat" *)
-    rule memWriteSPResp ( reqFifo.notEmpty && tpl_3(reqFifo.first()) && latCounter == fromInteger(valueOf(MEM_LATENCY)-1) );        
+    (* descending_urgency = "memWriteSPResp, memLatWrite" *)
+    rule memWriteSPResp ( reqFifo.notEmpty && tpl_3(reqFifo.first()) && writeLatCounter >= fromInteger(valueOf(MEM_LATENCY)-1) );        
 
         match {.a, .d, .is_write} = reqFifo.first();
         reqFifo.deq;
@@ -104,13 +113,13 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     // ====================================================================/
 
     (* fire_when_enabled *) 
-    (* mutually_exclusive = "readReq, memLat" *)
-    rule readReq (!bus.writeReqEn);
+    (* mutually_exclusive = "readReq, memLatRead" *)
+    rule readReq (!bus.writeReqEn );
 
         Bit#(t_addr_sz) a = bus.reqAddr;
         reqFifo.enq(tuple3(a,?,False));
 
-        latCounter <= 0;
+        readLatCounter <= 0;
 
         `ifdef PRIV_VERBOSE
         readStartCycle.enq(cycle);
@@ -119,20 +128,28 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     endrule
 
 
-    (* descending_urgency = "memReadSPResp, memLat" *)
-    rule memReadSPResp ( reqFifo.notEmpty && !tpl_3(reqFifo.first()) && latCounter == fromInteger(valueOf(MEM_LATENCY)-1) );        
+    (* descending_urgency = "memReadSPRespFifo, memLatRead" *)
+    rule memReadSPRespFifo ( reqFifo.notEmpty && !tpl_3(reqFifo.first()) && readLatCounter >= fromInteger(valueOf(MEM_LATENCY)-1) );        
 
         match {.a, .d, .is_write} = reqFifo.first();
         reqFifo.deq;
 
         Bit#(t_data_sz) resp = memory.sub(a);
 
-        bus.readRsp(resp);
+        readRspFifo.enq(resp);
 
         `ifdef PRIV_VERBOSE
         $display("[%d] bus%d read response: addr = %d, data = %d, latency = %d",cycle,scratchpadID,a,d,cycle-readStartCycle.first);
         readStartCycle.deq;
         `endif
+
+    endrule
+
+   // forward read response to core
+    rule memReadSPRespResp ( True ); // readRspFifo.notEmpty ??
+
+        bus.readRsp(readRspFifo.first);
+        readRspFifo.deq;
 
     endrule
 
@@ -143,9 +160,15 @@ module mkSimulatedMemory#( HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
     //
     // ====================================================================/
 
-    rule memLat ( reqFifo.notEmpty );        
+    rule memLatWrite ( reqFifo.notEmpty );        
 
-        latCounter <= latCounter + 1;  
+        writeLatCounter <= writeLatCounter + 1;  
+
+    endrule
+    
+    rule memLatRead ( reqFifo.notEmpty );        
+
+        readLatCounter <= readLatCounter + 1;  
 
     endrule
 

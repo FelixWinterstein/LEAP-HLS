@@ -20,13 +20,16 @@ void hello_world(volatile int *bus0, volatile int *bus1)
 	// internal block RAM
 	int buffer[256];
 
-	// read from bus0
-	for (int i=0; i<256; i++)
+	// read from bus0 and write to bus0
+	for (int i=0; i<256; i++) {
 		buffer[i] = bus0[i];
+		bus0[i] = buffer[i]*buffer[i];
+	}
 
 	// write to bus1
-	for (int i=0; i<256; i++)
+	for (int i=0; i<256; i++) {
 		bus1[i] = buffer[i]*buffer[i];
+	}
 
 
 }

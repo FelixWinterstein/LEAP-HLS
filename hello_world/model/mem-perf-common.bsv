@@ -53,7 +53,7 @@ STATE
     deriving (Bits, Eq);
 
 
-typedef Bit#(40) CYCLE_COUNTER;
+typedef Bit#(48) CYCLE_COUNTER;
 
 typedef Bit#(`MEM_ADDR) MEM_ADDRESS;
 typedef Bit#(`MEM_WIDTH) MEM_DATA;
@@ -171,7 +171,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
 
     rule doTestDone (state == STATE_test_done);
         stdio.printf(doneMsg, list2(zeroExtend(pack(cycle)), 
-                                    zeroExtend(pack(endCycle-startCycle))));
+                                    zeroExtend(pack(cycle-startCycle))));
         finishChain.enq(0,?);
         state <= STATE_get_command;
 
