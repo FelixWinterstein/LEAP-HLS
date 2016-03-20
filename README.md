@@ -10,7 +10,7 @@ Current HLS systems typically provide very simple FPGA-side memory and I/O sub-s
 
 We provide three code examples:
   * **Hello World**: A basic example using two private scratchpads.
-  * **Merger**: A light-weight example using only private memory regions (still uses the previous version of Verilog/Bluespec wrapper files)
+  * **Merger**: A light-weight example using only private memory regions.
   * **The filtering algorithm**: A more complicated implementation of K-means clustering using private and shared memory regions as well as LEAP's lock synchronization service (still uses the previous version of Verilog/Bluespec wrapper files)
 
 Instructions for building the applications are in the README file in each folder. To build and run the examples, the following tools/ software packages must be installed:
