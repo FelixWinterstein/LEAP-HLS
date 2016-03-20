@@ -36,7 +36,7 @@ import LFSR::*;
 `include "awb/dict/PARAMS_MEM_PERF_COMMON.bsh" // Include parameter id.  Headers are generated per awb type
 
 
-`define SHOW_OUTPUT
+//`define SHOW_OUTPUT
 `define VERBOSE
 //`define REDUCE_PAR_TO_1
 
@@ -84,11 +84,10 @@ ChannelStateType
 module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCaches) (Empty)
     provisos (Bits#(SCRATCHPAD_MEM_VALUE, t_SCRATCHPAD_MEM_VALUE_SZ));
 
-    //
-    // Allocate scratchpads
-    //
+    // HLS IP
+    MY_IP_WITH_BUNDLES_IFC#(MEM_DATA0, MEM_ADDRESS, IO_DATA) merger_top_wrapper <- mkMyIPWithBundles;
     
-    
+
     // ====================================================================
     //
     // Private scratchpads
@@ -98,21 +97,21 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     let initFileName <- getGlobalStringUID("freelist_initialization.dat");
 
     // main scratchpads for data
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory0 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST0, 0, `CACHE_ENTRIES, addCaches);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory0 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort0,`VDEV_SCRATCH_MEMTEST0, 0, `CACHE_ENTRIES, addCaches,initFileName);
 
     `ifndef REDUCE_PAR_TO_1 
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory1 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST1, 1, `CACHE_ENTRIES, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory2 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST2, 2, `CACHE_ENTRIES, addCaches);
-    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory3 <- mkPrivateSPInterface(`VDEV_SCRATCH_MEMTEST3, 3, `CACHE_ENTRIES, addCaches);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory1 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort1,`VDEV_SCRATCH_MEMTEST1, 1, `CACHE_ENTRIES, addCaches,initFileName);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory2 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort2,`VDEV_SCRATCH_MEMTEST2, 2, `CACHE_ENTRIES, addCaches,initFileName);
+    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory3 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort3,`VDEV_SCRATCH_MEMTEST3, 3, `CACHE_ENTRIES, addCaches,initFileName);
     `endif
 
     // scratchpads for freelists
-    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA1) memory4 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST4, 4, `CACHE_ENTRIES, addCaches, initFileName);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory4 <- mkPrivateSPInterface(merger_top_wrapper.busPort4,`VDEV_SCRATCH_MEMTEST4, 4, `CACHE_ENTRIES, addCaches);
 
     `ifndef REDUCE_PAR_TO_1 
-    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA1) memory5 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST5, 5, `CACHE_ENTRIES, addCaches, initFileName);
-    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA1) memory6 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST6, 6, `CACHE_ENTRIES, addCaches, initFileName);
-    PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_DATA1) memory7 <- mkPrivateSPInterfaceMmap(`VDEV_SCRATCH_MEMTEST7, 7, `CACHE_ENTRIES, addCaches, initFileName);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory5 <- mkPrivateSPInterface(merger_top_wrapper.busPort5,`VDEV_SCRATCH_MEMTEST5, 5, `CACHE_ENTRIES, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory6 <- mkPrivateSPInterface(merger_top_wrapper.busPort6,`VDEV_SCRATCH_MEMTEST6, 6, `CACHE_ENTRIES, addCaches);
+    PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory7 <- mkPrivateSPInterface(merger_top_wrapper.busPort7,`VDEV_SCRATCH_MEMTEST7, 7, `CACHE_ENTRIES, addCaches);
     `endif
 
     // Output
@@ -142,17 +141,17 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     Reg#(Bit#(16)) shReg3 <- mkReg('h11);
 
     // number of inputs per channel
-    Reg#(TA) nSamples <- mkReg(64);
+    Reg#(MEM_ADDRESS) nSamples <- mkReg(64);
 
     // number of tests to run
-    Reg#(TA) nIterations <- mkReg(1);
-    Reg#(TA) iterationCounter <- mkReg(0);
+    Reg#(MEM_ADDRESS) nIterations <- mkReg(1);
+    Reg#(MEM_ADDRESS) iterationCounter <- mkReg(0);
 
 
     Reg#(COUNTER_T)  outputCounter <- mkReg(0);
     Reg#(COUNTER_T)  outputCounterRaw <- mkReg(0);
-    FIFOF#(TD_io) outputFifo <- mkSizedBRAMFIFOF(4096);
-    Reg#(TD_io) prevOutput <- mkReg(0);
+    FIFOF#(IO_DATA) outputFifo <- mkSizedBRAMFIFOF(4096);
+    Reg#(IO_DATA) prevOutput <- mkReg(0);
     Reg#(Bool) mismatch <- mkReg(False);
 
 
@@ -171,11 +170,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     // Dynamic parameters   
     PARAMETER_NODE paramNode  <- mkDynamicParameterNode();
     Param#(32) param_nSamples <- mkDynamicParameter(`PARAMS_MEM_PERF_COMMON_N_SAMPLES,paramNode);
-
-
-    // HLS IP
-    MyIP#(TD_io, TD_bus, TA) merger_top_wrapper <- mkMyIP;
-
+   
 
     // ====================================================================
     //
@@ -187,8 +182,8 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
         let cmd <- commandChain.recvFromPrev();
         commandChain.sendToNext(cmd);
 
-        TA num = param_nSamples; // pick up the number of samples to be sorted from a dynamic parameter ( passed as a command line argument)
-        TA it = cmd.iterations; // pick up the number of iterations from the host code ( in connected_application-test.cpp )
+        MEM_ADDRESS num = param_nSamples; // pick up the number of samples to be sorted from a dynamic parameter ( passed as a command line argument)
+        MEM_ADDRESS it = cmd.iterations; // pick up the number of iterations from the host code ( in connected_application-test.cpp )
         
         case (pack(cmd.command)[1:0])
             0: state <= STATE_finished;
@@ -288,61 +283,53 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     
     (* fire_when_enabled *)
     rule enhlsFifoDataIn0 ( state == STATE_processing /* && inputFifo0.notEmpty */ );
-        merger_top_wrapper.enDataIn0();
+        merger_top_wrapper.fifoInPort0.enDataIn();
     endrule
 
     (* fire_when_enabled *)
     rule enhlsFifoDataIn1 ( state == STATE_processing /* && inputFifo1.notEmpty */ );
-        merger_top_wrapper.enDataIn1();
+        merger_top_wrapper.fifoInPort1.enDataIn();
     endrule
 
     (* fire_when_enabled *)
     rule enhlsFifoDataIn2 ( state == STATE_processing /* && inputFifo2.notEmpty */ );
-        merger_top_wrapper.enDataIn2();
+        merger_top_wrapper.fifoInPort2.enDataIn();
     endrule
 
     (* fire_when_enabled *)
     rule enhlsFifoDataIn3 ( state == STATE_processing /* && inputFifo3.notEmpty */ );
-        merger_top_wrapper.enDataIn3();
+        merger_top_wrapper.fifoInPort3.enDataIn();
     endrule
     
     rule hlsFifoDataIn0 ( True );
-        merger_top_wrapper.data_in0( zeroExtend(lfsr0.value));
+        merger_top_wrapper.fifoInPort0.data_in( zeroExtend(lfsr0.value));
         lfsr0.next;
-        //merger_top_wrapper.data_in0( inputFifo0.first );   
-        //inputFifo0.deq;
     endrule 
 
     rule hlsFifoDataIn1 ( True );
-        merger_top_wrapper.data_in1( zeroExtend(lfsr1.value));
+        merger_top_wrapper.fifoInPort1.data_in( zeroExtend(lfsr1.value));
         lfsr1.next;   
-        //merger_top_wrapper.data_in1( inputFifo1.first );   
-        //inputFifo1.deq;
     endrule 
 
     rule hlsFifoDataIn2 ( True );
-        merger_top_wrapper.data_in2( zeroExtend(lfsr2.value));
+        merger_top_wrapper.fifoInPort2.data_in( zeroExtend(lfsr2.value));
         lfsr2.next;   
-        //merger_top_wrapper.data_in2( inputFifo2.first );   
-        //inputFifo2.deq;
     endrule 
 
     rule hlsFifoDataIn3 ( True );
-        merger_top_wrapper.data_in3( zeroExtend(lfsr3.value));
+        merger_top_wrapper.fifoInPort3.data_in( zeroExtend(lfsr3.value));
         lfsr3.next;   
-        //merger_top_wrapper.data_in3( inputFifo3.first );   
-        //inputFifo3.deq;
     endrule 
 
 
     rule enDataOut (state == STATE_processing && outputFifo.notFull );
-        merger_top_wrapper.enDataOut();
+        merger_top_wrapper.fifoOutPort0.enDataOut();
     endrule
 
 
     (* fire_when_enabled *)
     rule hlsFifoDataOut ( True );        
-        TD_io d = merger_top_wrapper.data_out();
+        IO_DATA d = merger_top_wrapper.fifoOutPort0.data_out();
 
         outputFifo.enq(d);
         outputCounterRaw <= outputCounterRaw + 1;
@@ -371,278 +358,6 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
             stdio.printf(errorMsg, list2(zeroExtend(outputCounter),zeroExtend(outputFifo.first)));
     endrule 
 
-
-    // ====================================================================
-    //
-    // memory writes.
-    //
-    // ====================================================================/
-
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq0 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr0() | (0 * (1<<`MEM_TEST_SHIFT) );
-        TD_bus d = merger_top_wrapper.writeData0();
-        memory0.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem0 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem0 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq4 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr4() | (4 * (1<<`MEM_TEST_SHIFT) );
-        TA d = merger_top_wrapper.writeData4();
-        memory4.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem4 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem4 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    `ifndef REDUCE_PAR_TO_1 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq1 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr1() | (1 * (1<<`MEM_TEST_SHIFT) );
-        TD_bus d = merger_top_wrapper.writeData1();
-        memory1.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem1 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem1 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq2 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr2() | (2 * (1<<`MEM_TEST_SHIFT) );
-        TD_bus d = merger_top_wrapper.writeData2();
-        memory2.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem2 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem2 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq3 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr3() | (3 * (1<<`MEM_TEST_SHIFT) );
-        TD_bus d = merger_top_wrapper.writeData3();
-        memory3.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem3 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem3 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq5 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr5() | (5 * (1<<`MEM_TEST_SHIFT) );
-        TA d = merger_top_wrapper.writeData5();
-        memory5.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem5 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem5 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq6 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr6() | (6 * (1<<`MEM_TEST_SHIFT) );
-        TA d = merger_top_wrapper.writeData6();
-        memory6.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem6 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem6 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusWriteReq7 ( state == STATE_processing );               
-        // this rule fires if the core wants to write 
-        TA a = merger_top_wrapper.writeAddr7() | (7 * (1<<`MEM_TEST_SHIFT) );
-        TA d = merger_top_wrapper.writeData7();
-        memory7.setWriteReq(truncate(a), zeroExtend(d));
-
-        `ifdef VERBOSE
-        debugLog.record($format("[%d] mem7 write request: addr = %d, val = %d",unpack(cycle),a,d));
-        $display("[%d] mem7 write request: addr = %8d, val = %d",unpack(cycle),a,d);
-        `endif
-    endrule 
-
-    `endif
-
-
-    rule hlsEnWrite0 ( state == STATE_processing && memory0.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite0();          
-    endrule
-
-    rule hlsEnWrite4 ( state == STATE_processing && memory4.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite4();          
-    endrule
-
-    `ifndef REDUCE_PAR_TO_1 
-
-    rule hlsEnWrite1 ( state == STATE_processing && memory1.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite1();          
-    endrule
-
-    rule hlsEnWrite2 ( state == STATE_processing && memory2.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite2();          
-    endrule
-
-    rule hlsEnWrite3 ( state == STATE_processing && memory3.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite3();
-    endrule
-
-    rule hlsEnWrite5 ( state == STATE_processing && memory5.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite5();
-    endrule
-
-    rule hlsEnWrite6 ( state == STATE_processing && memory6.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite6();
-    endrule
-
-    rule hlsEnWrite7 ( state == STATE_processing && memory7.enWrite );
-        // tell the core that it is allowed to issue a write
-        merger_top_wrapper.enWrite7();
-    endrule
-
-    `endif
-
-    // ====================================================================
-    //
-    // memory reads.
-    //
-    // ====================================================================
-
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq0 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest0() | (0 * (1<<`MEM_TEST_SHIFT) );
-        memory0.setReadReq(truncate(a));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq4 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest4() | (4 * (1<<`MEM_TEST_SHIFT) );
-        memory4.setReadReq(truncate(a));
-    endrule 
-
-    `ifndef REDUCE_PAR_TO_1 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq1 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest1() | (1 * (1<<`MEM_TEST_SHIFT) );
-        memory1.setReadReq(truncate(a));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq2 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest2() | (2 * (1<<`MEM_TEST_SHIFT) );
-        memory2.setReadReq(truncate(a));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq3 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest3() | (3 * (1<<`MEM_TEST_SHIFT) );
-        memory3.setReadReq(truncate(a));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq5 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest5() | (5 * (1<<`MEM_TEST_SHIFT) );
-        memory5.setReadReq(truncate(pack(a)));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq6 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest6() | (6 * (1<<`MEM_TEST_SHIFT) );
-        memory6.setReadReq(truncate(a));
-    endrule 
-
-    (* fire_when_enabled *)
-    rule hlsBusReadReq7 (state == STATE_processing);    
-        TA a = merger_top_wrapper.readRequest7() | (7 * (1<<`MEM_TEST_SHIFT) );
-        memory7.setReadReq(truncate(a));
-    endrule 
-
-    `endif
-
-
-    rule hlsBusReadResp0 (state == STATE_processing); 
-        let resp <- memory0.readResp();   
-        TD_bus d = truncate(resp);
-        merger_top_wrapper.readData0(d);
-    endrule 
-
-    rule hlsBusReadResp4 (state == STATE_processing); 
-        let resp <- memory4.readResp();   
-        TA d = truncate(resp);
-        merger_top_wrapper.readData4(d);
-    endrule 
-
-    `ifndef REDUCE_PAR_TO_1 
-
-    rule hlsBusReadResp1 (state == STATE_processing); 
-        let resp <- memory1.readResp();   
-        TD_bus d = truncate(resp);
-        merger_top_wrapper.readData1(d);
-    endrule 
-
-    rule hlsBusReadResp2 (state == STATE_processing); 
-        let resp <- memory2.readResp();   
-        TD_bus d = truncate(resp);
-        merger_top_wrapper.readData2(d);
-    endrule 
-
-    rule hlsBusReadResp3 (state == STATE_processing); 
-        let resp <- memory3.readResp();   
-        TD_bus d = truncate(resp);
-        merger_top_wrapper.readData3(d);
-    endrule 
-
-    rule hlsBusReadResp5 (state == STATE_processing); 
-        let resp <- memory5.readResp();   
-        TA d = truncate(resp);
-        merger_top_wrapper.readData5(d);
-    endrule 
-
-    rule hlsBusReadResp6 (state == STATE_processing); 
-        let resp <- memory6.readResp();   
-        TA d = truncate(resp);
-        merger_top_wrapper.readData6(d);
-    endrule 
-
-    rule hlsBusReadResp7 (state == STATE_processing); 
-        let resp <- memory7.readResp();   
-        TA d = truncate(resp);
-        merger_top_wrapper.readData7(d);
-    endrule 
-
-    `endif
 
     // ====================================================================
     //

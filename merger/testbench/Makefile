@@ -5,7 +5,6 @@ all:
 	rm -fR obj
 	cp ../generated_verilog/*.v .
 	cp ../generated_verilog/*.hex .
-	cp ../wrappers/verilog/*.v .
 	cp ../wrappers/bluespec/*.bsv .
 	mkdir obj
 	# compile it

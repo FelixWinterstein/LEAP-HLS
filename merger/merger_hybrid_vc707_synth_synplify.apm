@@ -41,7 +41,7 @@ File=./model/mem-perf.awb
 
 [Scratchpad Memory Performance Test System/Params]
 MEM_TEST_PRIVATE_CACHES=1
-CACHE_ENTRIES=4096
+CACHE_ENTRIES=8192
 
 [Scratchpad Memory Performance Test System Wrapper/Requires]
 mem_perf_tester=Scratchpad Memory Performance Test System

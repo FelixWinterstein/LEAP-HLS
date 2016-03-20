@@ -16,7 +16,7 @@ pointer_type sorted_insert(volatile data_record *data_bus, volatile pointer_type
 
 	pointer_type new_record = malloc<pointer_type>(flist,next_free_location);
 	data_record new_record_rec;
-	
+
 	new_record_rec.k = key;
 	new_record_rec.n = 0;
 	//data_record_type_to_bus(new_record_rec, new_record, data_bus);
@@ -44,7 +44,7 @@ pointer_type sorted_insert(volatile data_record *data_bus, volatile pointer_type
 
 		sorted_insert_label3:while (loop_n != 0 && loop_k <= key) {
 
-			#pragma HLS pipeline II=11
+			//#pragma HLS pipeline II=11
 
             prev = l;
             tmp_n = l_rec.n;
@@ -226,57 +226,57 @@ pointer_type sorted_insert_wrapper(volatile data_record *data_bus, volatile poin
 
 //top level entity
 void merger_top(uint n,
+				volatile data_record *data_bus_0,
 				volatile data_record *data_bus_1,
 				volatile data_record *data_bus_2,
 				volatile data_record *data_bus_3,
-				volatile data_record *data_bus_4,
+				volatile pointer_type *freelist_bus_0,
 				volatile pointer_type *freelist_bus_1,
 				volatile pointer_type *freelist_bus_2,
 				volatile pointer_type *freelist_bus_3,
-				volatile pointer_type *freelist_bus_4,
+				volatile int *val_r0,
 				volatile int *val_r1,
 				volatile int *val_r2,
 				volatile int *val_r3,
-				volatile int *val_r4,
-				volatile int *val_w)
+				volatile int *val_w0)
 {
 
 
 
+	#pragma HLS INTERFACE ap_bus port=data_bus_0
 	#pragma HLS INTERFACE ap_bus port=data_bus_1
 	#pragma HLS INTERFACE ap_bus port=data_bus_2
 	#pragma HLS INTERFACE ap_bus port=data_bus_3
-	#pragma HLS INTERFACE ap_bus port=data_bus_4
 
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_0
 	#pragma HLS INTERFACE ap_bus port=freelist_bus_1
 	#pragma HLS INTERFACE ap_bus port=freelist_bus_2
 	#pragma HLS INTERFACE ap_bus port=freelist_bus_3
-	#pragma HLS INTERFACE ap_bus port=freelist_bus_4
 
+    #pragma HLS data_pack variable=data_bus_0
     #pragma HLS data_pack variable=data_bus_1
     #pragma HLS data_pack variable=data_bus_2
     #pragma HLS data_pack variable=data_bus_3
-    #pragma HLS data_pack variable=data_bus_4
 
 	/*
+	#pragma HLS resource core=AXI4M variable=data_bus_0
 	#pragma HLS resource core=AXI4M variable=data_bus_1
 	#pragma HLS resource core=AXI4M variable=data_bus_2
 	#pragma HLS resource core=AXI4M variable=data_bus_3
-	#pragma HLS resource core=AXI4M variable=data_bus_4
 	*/
 
+	#pragma HLS interface ap_fifo port=val_r0 depth=16
 	#pragma HLS interface ap_fifo port=val_r1 depth=16
 	#pragma HLS interface ap_fifo port=val_r2 depth=16
 	#pragma HLS interface ap_fifo port=val_r3 depth=16
-	#pragma HLS interface ap_fifo port=val_r4 depth=16
-	#pragma HLS interface ap_fifo port=val_w depth=16
+	#pragma HLS interface ap_fifo port=val_w0 depth=16
 	//#pragma HLS interface ap_fifo port=debug_out depth=256
 
 
+    pointer_type next_free_location_0 = 1;
     pointer_type next_free_location_1 = 1;
     pointer_type next_free_location_2 = 1;
     pointer_type next_free_location_3 = 1;
-    pointer_type next_free_location_4 = 1;
 
 	pointer_type queue_array[4];
 	#pragma HLS array_partition variable=queue_array complete
@@ -286,29 +286,29 @@ void merger_top(uint n,
 		queue_array[p] = 0;
 	}
 
-	queue_array[0] = sorted_insert_wrapper(data_bus_1, freelist_bus_1, &next_free_location_1, n, queue_array[0], val_r1, 0);
-	queue_array[1] = sorted_insert_wrapper(data_bus_2, freelist_bus_2, &next_free_location_2, n, queue_array[1], val_r2, 1);
-	queue_array[2] = sorted_insert_wrapper(data_bus_3, freelist_bus_3, &next_free_location_3, n, queue_array[2], val_r3, 2);
-	queue_array[3] = sorted_insert_wrapper(data_bus_4, freelist_bus_4, &next_free_location_4, n, queue_array[3], val_r4, 3);
+	queue_array[0] = sorted_insert_wrapper(data_bus_0, freelist_bus_0, &next_free_location_0, n, queue_array[0], val_r0, 0);
+	queue_array[1] = sorted_insert_wrapper(data_bus_1, freelist_bus_1, &next_free_location_1, n, queue_array[1], val_r1, 1);
+	queue_array[2] = sorted_insert_wrapper(data_bus_2, freelist_bus_2, &next_free_location_2, n, queue_array[2], val_r2, 2);
+	queue_array[3] = sorted_insert_wrapper(data_bus_3, freelist_bus_3, &next_free_location_3, n, queue_array[3], val_r3, 3);
 
 
 	pointer_type i = 0;
 	while ( (queue_array[0] != 0) || (queue_array[1] != 0) || (queue_array[2] != 0) || (queue_array[3] != 0) ) {
-		val_w[i] = delete_smallest( data_bus_1,
+		val_w0[i] = delete_smallest( data_bus_0,
+									data_bus_1,
 									data_bus_2,
 									data_bus_3,
-									data_bus_4,
+									freelist_bus_0,
 									freelist_bus_1,
 									freelist_bus_2,
 									freelist_bus_3,
-									freelist_bus_4,
+									&next_free_location_0,
 									&next_free_location_1,
 									&next_free_location_2,
 									&next_free_location_3,
-									&next_free_location_4,
 									queue_array);
 		#ifndef __SYNTHESIS__
-		printf("%d ", val_w[i] );
+		printf("%d ", val_w0[i] );
 		#endif
 
 		i++;
@@ -454,29 +454,29 @@ int delete_smallest(volatile data_record *data_bus, volatile pointer_type *flist
 
 //top level entity
 void merger_top(uint n,
-				volatile data_record *data_bus_1,
-				volatile pointer_type *freelist_bus_1,
+				volatile data_record *data_bus_0,
+				volatile pointer_type *freelist_bus_0,
+				volatile int *val_r0,
 				volatile int *val_r1,
 				volatile int *val_r2,
 				volatile int *val_r3,
-				volatile int *val_r4,
-				volatile int *val_w)
+				volatile int *val_w0)
 {
 
 
-	#pragma HLS INTERFACE ap_bus port=data_bus_1
+	#pragma HLS INTERFACE ap_bus port=data_bus_0
 
-	#pragma HLS data_pack variable=data_bus_1
+	#pragma HLS data_pack variable=data_bus_0
 
-	#pragma HLS INTERFACE ap_bus port=freelist_bus_1
+	#pragma HLS INTERFACE ap_bus port=freelist_bus_0
 
+	#pragma HLS interface ap_fifo port=val_r0 depth=16
 	#pragma HLS interface ap_fifo port=val_r1 depth=16
 	#pragma HLS interface ap_fifo port=val_r2 depth=16
 	#pragma HLS interface ap_fifo port=val_r3 depth=16
-	#pragma HLS interface ap_fifo port=val_r4 depth=16
-	#pragma HLS interface ap_fifo port=val_w depth=16
+	#pragma HLS interface ap_fifo port=val_w0 depth=16
 
-	pointer_type next_free_location_1 = 1;
+	pointer_type next_free_location_0 = 1;
 
 
 	pointer_type queue_array[4];
@@ -490,10 +490,10 @@ void merger_top(uint n,
 
 
 	for(uint i=0; i<n; i++) {
-		queue_array[0] = sorted_insert(data_bus_1, freelist_bus_1, &next_free_location_1, queue_array[0], val_r1[i]);
-		queue_array[1] = sorted_insert(data_bus_1, freelist_bus_1, &next_free_location_1, queue_array[1], val_r2[i]);
-		queue_array[2] = sorted_insert(data_bus_1, freelist_bus_1, &next_free_location_1, queue_array[2], val_r3[i]);
-		queue_array[3] = sorted_insert(data_bus_1, freelist_bus_1, &next_free_location_1, queue_array[3], val_r4[i]);
+		queue_array[0] = sorted_insert(data_bus_0, freelist_bus_0, &next_free_location_0, queue_array[0], val_r0[i]);
+		queue_array[1] = sorted_insert(data_bus_0, freelist_bus_0, &next_free_location_0, queue_array[1], val_r1[i]);
+		queue_array[2] = sorted_insert(data_bus_0, freelist_bus_0, &next_free_location_0, queue_array[2], val_r2[i]);
+		queue_array[3] = sorted_insert(data_bus_0, freelist_bus_0, &next_free_location_0, queue_array[3], val_r3[i]);
 		#ifndef __SYNTHESIS__
 		//printf("%d ", queue_array[1].VAL);
 		#endif
@@ -504,9 +504,9 @@ void merger_top(uint n,
 	pointer_type i = 0;
 	while ( (queue_array[0] != NULL_PTR) || (queue_array[1] != NULL_PTR) || (queue_array[2] != NULL_PTR) || (queue_array[3] != NULL_PTR) ) {
 		//#pragma HLS pipeline II=11
-		val_w[i] = delete_smallest(data_bus_1, freelist_bus_1, &next_free_location_1,queue_array);
+		val_w[i] = delete_smallest(data_bus_0, freelist_bus_0, &next_free_location_0,queue_array);
 		#ifndef __SYNTHESIS__
-		printf("%d ", val_w[i]);
+		printf("%d ", val_w0[i]);
 		#endif
 		i++;
 	}

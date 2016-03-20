@@ -26,7 +26,7 @@ rm -f model/MyIP.bsv
 cp generated_verilog/*.v model/.
 cp generated_verilog/*.dat model/.
 cp generated_verilog/*.hex model/.
-cp wrappers/verilog/*.v model/.
+#cp wrappers/verilog/*.v model/.
 cp wrappers/bluespec/*.bsv model/.
 
 echo " "

@@ -11,6 +11,7 @@
 import FIFO::*;
 import FIFOF::*;
 import DefaultValue::*;
+import MyIP::*;
 
 
 `include "awb/provides/librl_bsv.bsh"
@@ -27,26 +28,21 @@ import DefaultValue::*;
 
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
-//`define PRIV_VERBOSE
+`define PRIV_VERBOSE
 
 interface PRIVATESP_IFC#(type t_addr, type t_data);
-    method Action setWriteReq(t_addr a, t_data d);
-    method Action setReadReq(t_addr a);
-    method Bool enWrite();
-    method ActionValue#(t_data) readResp();
 endinterface
 
-module [CONNECTED_MODULE] mkPrivateSPInterface#(Integer scratchpadID,
+module [CONNECTED_MODULE] mkPrivateSPInterface#(HLS_AP_BUS_IFC#(Bit#(t_data_sz),Bit#(t_addr_sz)) bus,
+                                                Integer scratchpadID,
                                                 Integer logID, 
                                                 Integer cacheEntries,
                                                 Bool addCaches)
     // interface:
-    (PRIVATESP_IFC#(t_addr, t_data))
-    provisos (Bits#(t_addr, t_addr_sz),
-              Bits#(t_data, t_data_sz));
+    (PRIVATESP_IFC#(Bit#(t_addr_sz), Bit#(t_data_sz)));
 
     
-    // private scratchpad
+    // private scratchpad config
     SCRATCHPAD_CONFIG sconf = defaultValue;
     sconf.cacheMode = (addCaches ? SCRATCHPAD_CACHED :
                                    SCRATCHPAD_NO_PVT_CACHE
@@ -56,17 +52,24 @@ module [CONNECTED_MODULE] mkPrivateSPInterface#(Integer scratchpadID,
     //sconf.debugLogPath = tagged Valid ("priv_scratchpad_" + integerToString(logID) + ".out");
     sconf.enableStatistics = tagged Valid ("priv_scratchpad_" + integerToString(logID) + "_stats_");
 
-    MEMORY_IFC#(t_addr, t_data) memory <- mkScratchpad(scratchpadID, sconf);
+    // scratchpad
+    MEMORY_IFC#(Bit#(t_addr_sz), Bit#(t_data_sz)) memory <- mkScratchpad(scratchpadID, sconf);
 
-    Reg#(Bit#(32)) cycle <- mkReg(0);
+    // mem request fifo
+    FIFOF#(Tuple3#(Bit#(t_addr_sz), Bit#(t_data_sz), Bool)) reqFifo <- mkSizedFIFOF(16);
+    
+    // mem response fifo
+    FIFOF#(Bit#(t_data_sz)) readRspFifo <- mkSizedFIFOF(16);
 
     `ifdef PRIV_VERBOSE
     FIFO#(Bit#(32)) readStartCycle <- mkSizedFIFO(16);
     FIFO#(Bit#(32)) writeStartCycle <- mkSizedFIFO(16);
+
+    FIFO#(Bit#(t_addr_sz)) readAddrFifo <- mkSizedFIFO(16);
     `endif
 
-    FIFOF#( Tuple2#(t_addr, t_data) ) writeFifo <- mkSizedBRAMFIFOF(16);
-    FIFOF#(t_addr) readAddrFifo <- mkSizedBRAMFIFOF(16);
+
+    Reg#(Bit#(32)) cycle <- mkReg(0);
 
 
     // =======================================================================
@@ -75,75 +78,118 @@ module [CONNECTED_MODULE] mkPrivateSPInterface#(Integer scratchpadID,
     //
     // =======================================================================
 
-    rule writeResp ( writeFifo.notEmpty ); 
-        // this rule fires if the memory performs the write
-        writeFifo.deq;
+    (* fire_when_enabled *)
+    rule reqNotFull ( reqFifo.notFull );
+        bus.reqNotFull();
+    endrule
 
-        match {.addr, .data} = writeFifo.first;        
-        memory.write(addr, data);
+    (* fire_when_enabled *)
+    rule rspNotEmpty ( readRspFifo.notEmpty );
+        bus.rspNotEmpty();
+    endrule    
+
+    // ====================================================================
+    //
+    // memory write.
+    //
+    // ====================================================================/
+
+    (* fire_when_enabled *) 
+    rule writeReq ( bus.writeReqEn );
+
+        Bit#(t_addr_sz) a = bus.reqAddr | (fromInteger(logID) * (1<<`MEM_TEST_SHIFT) );
+        Bit#(t_data_sz) d = bus.writeData;
+        reqFifo.enq(tuple3(a,d,True));
 
         `ifdef PRIV_VERBOSE
-        $display("[%d] mem%d write reponse: lat = %d",unpack(cycle),logID,unpack(cycle)-unpack(writeStartCycle.first));
+        writeStartCycle.enq(cycle);
+        $display("[%d] bus%d write request: addr = %x",cycle,logID,a);
+        `endif
+    endrule
+
+
+    rule memWriteSPReq ( reqFifo.notEmpty && tpl_3(reqFifo.first()) );        
+
+        match {.a, .d, .is_write} = reqFifo.first();
+        reqFifo.deq;
+
+        memory.write(a, d);
+
+        `ifdef PRIV_VERBOSE
+        $display("[%d] bus%d write response: addr = %x, data = %d, latency = %d",cycle,logID,a,d,cycle-writeStartCycle.first);
         writeStartCycle.deq;
         `endif
-    endrule 
+    endrule
 
 
-    rule readReqAccept ( readAddrFifo.notEmpty);
+    // ====================================================================
+    //
+    // memory read.
+    //
+    // ====================================================================/
+
+    (* fire_when_enabled *) 
+    rule readReq (!bus.writeReqEn);
+
+        Bit#(t_addr_sz) a = bus.reqAddr | (fromInteger(logID) * (1<<`MEM_TEST_SHIFT) ) ;
+        reqFifo.enq(tuple3(a,?,False));
+
+        `ifdef PRIV_VERBOSE
+        readStartCycle.enq(cycle);
+        $display("[%d] bus%d read request: addr = %x",cycle,logID,a);
+        `endif
+    endrule
+
+
+    rule memReadSPReq ( reqFifo.notEmpty && !tpl_3(reqFifo.first()) );        
+
+        match {.a, .d, .is_write} = reqFifo.first();
+        reqFifo.deq;
+
+        memory.readReq(a);  
+
+        `ifdef PRIV_VERBOSE
+        readAddrFifo.enq(a);
+        `endif
+
+    endrule
+
+
+    // receive read response
+    rule memReadSPRespFifo (True);
+
+        Bit#(t_data_sz) resp <- memory.readRsp();
+        readRspFifo.enq(resp);        
+
+        `ifdef PRIV_VERBOSE
+        $display("[%d] bus%d read response: addr = %x, data = %d, latency = %d",cycle,logID,readAddrFifo.first,resp,cycle-readStartCycle.first);
+        readStartCycle.deq;
         readAddrFifo.deq;
-        memory.readReq(readAddrFifo.first);  
-    endrule 
+        `endif
+    endrule
+
+    // forward read response to core
+    rule memReadSPRespResp ( True ); // readRspFifo.notEmpty ??
+
+        bus.readRsp(readRspFifo.first);
+        readRspFifo.deq;
+
+    endrule
 
 
-    `ifdef PRIV_VERBOSE
+    // ====================================================================
+    //
+    // stats.
+    //
+    // ====================================================================/
+
+    `ifdef PRIV_VERBOSE    
     (* fire_when_enabled *)
-    rule cycleCount (True);
+    rule cycle_count (True);
         cycle <= cycle + 1;
     endrule
     `endif
 
-    // =======================================================================
-    //
-    // Methods
-    //
-    // =======================================================================
-
-    method Action setWriteReq(t_addr a, t_data d);
-
-        // remember addr and data
-        writeFifo.enq(tuple2(a,d));
-
-        `ifdef PRIV_VERBOSE
-        // record cycle in which this rule was triggered
-        writeStartCycle.enq(cycle);
-        `endif
-    endmethod
-
-    method enWrite = !writeFifo.notEmpty;
-
-
-    method Action setReadReq(t_addr a);
-        // remember addr
-        readAddrFifo.enq(a);
-
-        `ifdef PRIV_VERBOSE
-        // record cycle in which this rule was triggered
-        readStartCycle.enq(cycle);
-        `endif
-    endmethod 
-
-    method ActionValue#(t_data) readResp();
-    
-        let resp <- memory.readRsp();
-
-        `ifdef PRIV_VERBOSE
-        $display("[%d] mem%d read reponse: lat = %d",unpack(cycle),logID,unpack(cycle)-unpack(readStartCycle.first));
-        readStartCycle.deq;
-        `endif
-
-        return resp;
-
-    endmethod   
 
 
 endmodule

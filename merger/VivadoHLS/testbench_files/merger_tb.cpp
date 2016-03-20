@@ -5,10 +5,10 @@
 
 #define N 8192
 
+int val0[N];
 int val1[N];
 int val2[N];
 int val3[N];
-int val4[N];
 
 int dout[4*N];
 
@@ -142,9 +142,17 @@ bool write_freelist_init_file(pointer_type n)
     if ((fp == NULL) || (fp_hex==NULL))
 		return false;
 
-	for (pointer_type i=0; i<n; i++) {
-		write_word_to_file<pointer_type>(fp,i+1);
-	}
+	#ifdef PARALLEL_VERSION
+		for (int p=0; p<4; p++) {
+			for (pointer_type i=0; i<n; i++) {
+				write_word_to_file<pointer_type>(fp,i+1);
+			}
+		}
+	#else
+		for (pointer_type i=0; i<n; i++) {
+			write_word_to_file<pointer_type>(fp,i+1);
+		}
+	#endif
 
 	for (pointer_type i=0; i<n; i++) {
 
@@ -167,10 +175,10 @@ int main () {
 
 	// generate 4 random input sample streams
 	for (uint i=0; i<N; i++) {
+		val0[i] = rand() % 65536;
 		val1[i] = rand() % 65536;
 		val2[i] = rand() % 65536;
 		val3[i] = rand() % 65536;
-		val4[i] = rand() % 65536;
 	}
 
 	// initialize the freelists used by the dynamic memory allocator (only in C simulation)
@@ -189,7 +197,7 @@ int main () {
 
 
 	// write a freelist initialization file used by the dynamic memory allocator (in hardware)
-	if (!write_freelist_init_file(262144)) // set this number to the maximum number of heap-allocated  data records
+	if (!write_freelist_init_file(262144)) // set this number to the maximum number of heap-allocated data records per partition
 		return 1;
 
 	printf("start run...\n");
@@ -198,7 +206,7 @@ int main () {
 	merger_top(	N,
 				data_mem_0,
 				freelist_bus_0,
-				val1, val2, val3, val4, dout);
+				val0, val1, val2, val3, dout);
 	#else
 	merger_top(	N,
 				data_mem_0,
@@ -209,7 +217,7 @@ int main () {
 				freelist_bus_1,
 				freelist_bus_2,
 				freelist_bus_3,
-				val1, val2, val3, val4, dout);
+				val0, val1, val2, val3, dout);
 	#endif
 
     printf("\ndone\n");
