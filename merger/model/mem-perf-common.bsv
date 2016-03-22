@@ -96,7 +96,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
 
     let initFileName <- getGlobalStringUID("freelist_initialization.dat");
 
-    // main scratchpads for data
+    // main scratchpads for freelists
     PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory0 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort0,`VDEV_SCRATCH_MEMTEST0, 0, `CACHE_ENTRIES, addCaches,initFileName);
 
     `ifndef REDUCE_PAR_TO_1 
@@ -105,7 +105,7 @@ module [CONNECTED_MODULE] mkMemTesterCommon#(Integer scratchpadID, Bool addCache
     PRIVATESP_IFC_MMAP#(MEM_ADDRESS, MEM_ADDRESS) memory3 <- mkPrivateSPInterfaceMmap(merger_top_wrapper.busPort3,`VDEV_SCRATCH_MEMTEST3, 3, `CACHE_ENTRIES, addCaches,initFileName);
     `endif
 
-    // scratchpads for freelists
+    // scratchpads for data
     PRIVATESP_IFC#(MEM_ADDRESS, MEM_DATA0) memory4 <- mkPrivateSPInterface(merger_top_wrapper.busPort4,`VDEV_SCRATCH_MEMTEST4, 4, `CACHE_ENTRIES, addCaches);
 
     `ifndef REDUCE_PAR_TO_1 
