@@ -25,4 +25,4 @@ Instructions for building the applications are in the README file in each folder
 
 This repository is currently under construction.
 
-(c) Felix Winterstein, Imperial College London. The source code is distributed under a 3-clause BSD license (see LICENSE.txt). 
+(c) Felix Winterstein, Imperial College London. The source code is distributed under a 3-clause BSD license (see LICENSE.txt). A description of the benchmarks is in F. Winterstein, K. Fleming, H.-J. Yang, S. Bayliss, G. Constantinides, "MATCHUP: Memory Abstractions for Heap Manipulating Programs," in Proc. ACM/SIGDA International Symposium on Field-Programmable Gate Arrays, 2015, pp. 136-145. If you use the code, please cite this paper.
